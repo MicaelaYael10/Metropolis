@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const EXTENSIONS = new Set(['.sol', '.js', '.md', '.json', '.toml']);
+const EXTENSIONS = new Set(['.sol', '.js', '.md', '.json', '.toml', '.svg', '.html']);
 
 // Carpetas que no son codigo propio.
 const SKIP_DIRS = new Set(['node_modules', 'lib', 'out', 'cache', 'broadcast', 'reports', '.git']);
