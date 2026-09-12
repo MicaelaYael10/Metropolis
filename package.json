@@ -1,0 +1,21 @@
+{
+  "name": "riskguard-avax",
+  "version": "0.2.0",
+  "private": true,
+  "description": "RiskGuard - agente de gestion de riesgo para rendimiento pasivo en DeFi sobre Avalanche",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test -vv",
+    "fmt": "forge fmt",
+    "deploy:fuji": "forge script script/Deploy.s.sol --rpc-url avax_fuji --broadcast",
+    "deploy:mainnet": "forge script script/Deploy.s.sol --rpc-url avax_mainnet --broadcast --verify",
+    "test:engine": "node scripts/test-engine.js",
+    "ascii": "node scripts/ascii-lint.js",
+    "check": "node scripts/ascii-lint.js && node scripts/test-engine.js",
+    "score": "node scripts/score-cli.js",
+    "dataset:build": "node scripts/build-dataset.js",
+    "backtest": "node scripts/backtest.js",
+    "backtest:real": "node scripts/backtest.js --dataset data/dataset-avalanche.json --threshold 55 --sweep"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,21 @@
+[profile.default]
+# Los contratos viven en contracts/ (estructura heredada del proyecto).
+src = "contracts"
+test = "test"
+script = "script"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.24"
+optimizer = true
+optimizer_runs = 200
+evm_version = "paris"
+fs_permissions = [{ access = "read", path = "./data" }]
+
+[profile.default.fmt]
+line_length = 100
+tab_width = 4
+bracket_spacing = false
+
+[rpc_endpoints]
+avax_fuji = "https://api.avax-test.network/ext/bc/C/rpc"
+avax_mainnet = "https://api.avax.network/ext/bc/C/rpc"

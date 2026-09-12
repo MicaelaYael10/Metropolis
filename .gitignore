@@ -1,0 +1,12 @@
+# Foundry
+out/
+cache/
+broadcast/
+# lib/ contiene submodulos de git (forge-std): se versiona, NO se ignora
+
+# Node
+node_modules/
+
+# Entorno y reportes generados
+.env
+reports/
