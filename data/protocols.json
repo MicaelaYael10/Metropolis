@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Protocolo de staking (COMPLETAR)",
+    "address": "",
+    "category": 0,
+    "_comment": "category: 0=Staking, 1=Lending, 2=Liquidity, 3=Other"
+  },
+  {
+    "name": "Protocolo de lending (COMPLETAR)",
+    "address": "",
+    "category": 1,
+    "_comment": "Pegar aqui la direccion oficial verificada. El script omite entradas sin direccion."
+  }
+]
