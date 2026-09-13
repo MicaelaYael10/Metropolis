@@ -18,6 +18,7 @@
     "test:engine": "node scripts/test-engine.js",
     "test:e2e": "node scripts/e2e-anvil.js",
     "ascii": "node scripts/ascii-lint.js",
+    "serve:web": "node scripts/serve-web.js",
     "check": "node scripts/ascii-lint.js && node scripts/test-engine.js",
     "score": "node scripts/score-cli.js",
     "dataset:build": "node scripts/build-dataset.js",
