@@ -12,6 +12,7 @@
     "deploy:mainnet": "forge script script/Deploy.s.sol --rpc-url avax_mainnet --broadcast --verify",
     "seed:fuji": "node scripts/seed-fuji.js",
     "export:web": "node scripts/export-web-data.js",
+    "stereum:proxy": "node --env-file=.env server/stereum-proxy.mjs",
     "test:engine": "node scripts/test-engine.js",
     "test:e2e": "node scripts/e2e-anvil.js",
     "ascii": "node scripts/ascii-lint.js",

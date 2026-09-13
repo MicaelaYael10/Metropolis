@@ -147,6 +147,35 @@ export default function App() {
   const [matrixHorizon, setMatrixHorizon] = useState("30d");
   const [segment, setSegment] = useState("resumen");
 
+  // Stereum (fondeo Bs <-> stablecoin): el frontend llama al proxy server-side.
+  const STEREUM_API = (import.meta.env.VITE_STEREUM_API as string) || "http://localhost:8788";
+  const [stereum, setStereum] = useState<{ configured?: boolean; ready?: boolean; stereumStatus?: number; message?: string; hint?: string } | null>(null);
+  const [stereumForm, setStereumForm] = useState({ amount: "100.00", currency: "BOB", description: "Fondeo RiskGuard" });
+  const [stereumOut, setStereumOut] = useState<string>("");
+  const checkStereum = () => {
+    fetch(`${STEREUM_API}/health`)
+      .then((r) => r.json())
+      .then(setStereum)
+      .catch(() => setStereum({ configured: false, message: "proxy no disponible" }));
+  };
+  useEffect(() => {
+    checkStereum();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const sendStereum = async () => {
+    try {
+      const r = await fetch(`${STEREUM_API}/api/stereum/transfers/send`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(stereumForm),
+      });
+      const j = await r.json();
+      setStereumOut(`${r.status} - ${typeof j === "object" ? j.message || j.error || JSON.stringify(j) : j}`);
+    } catch (e) {
+      setStereumOut(`Error: ${(e as Error).message}`);
+    }
+  };
+
   const goToSegment = (id: string) => {
     setView("app");
     setSegment(id);
@@ -912,33 +941,54 @@ export default function App() {
           <div className={`p-6 sm:p-8 ${glass}`}>
             <div className="flex flex-wrap items-center gap-4 justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/30 to-cyan-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400"><Landmark className="w-5 h-5" /></div>
+                <div className="w-12 h-12 rounded-md bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+                  <Landmark className="w-5 h-5" />
+                </div>
                 <div>
-                  <h3 className={`text-lg font-bold font-['Space_Grotesk'] ${isDark ? "text-white" : "text-slate-900"}`}>Fondeo: Bs a USDC/USDT</h3>
-                  <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>Rampa fiat para que el usuario fondee su billetera antes de asignar.</p>
+                  <h3 className="text-lg font-bold font-['Space_Grotesk'] text-slate-900">Fondeo: Bs a USDC/USDT</h3>
+                  <p className="text-xs text-slate-600">Rampa fiat (Stereum) para fondear la billetera antes de asignar.</p>
                 </div>
               </div>
-              <a href="https://stereum.tech" target="_blank" rel="noreferrer" className="px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-emerald-600 to-cyan-600 text-white flex items-center gap-2">
-                Stereum <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              <div className="flex items-center gap-2">
+                <span className={chip(stereum?.ready ? bandChip("verde") : stereum?.configured ? bandChip("ambar") : bandChip("rojo"))}>
+                  {stereum?.ready ? "API operativa" : stereum?.configured ? "falta habilitar cuenta" : "proxy no disponible"}
+                </span>
+                <button onClick={checkStereum} className="px-3 py-2 rounded-md text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-cyan-600">
+                  Revisar
+                </button>
+                <a href="https://console.stereum.tech" target="_blank" rel="noreferrer" className="px-4 py-2 rounded-md text-sm font-bold bg-gradient-to-r from-emerald-600 to-cyan-600 text-white flex items-center gap-2">
+                  Console <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </div>
+
+            <p className="mt-4 text-xs text-slate-600">
+              {stereum?.message ? `Stereum: ${stereum.message}` : "Consultando a Stereum..."}
+              {stereum?.hint ? ` ${stereum.hint}` : ""}
+            </p>
+
             <div className="grid sm:grid-cols-3 gap-4 mt-6">
-              <div className={`p-4 rounded-2xl border ${isDark ? "border-white/10" : "border-slate-200"}`}>
-                <div className={`text-xs uppercase tracking-wider mb-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>Servicio</div>
-                <p className={`text-xs ${isDark ? "text-slate-300" : "text-slate-700"}`}>Stereum: API de pagos en Bolivia con stablecoin.</p>
+              <div>
+                <span className={label}>Monto</span>
+                <input className={input} value={stereumForm.amount} onChange={(e) => setStereumForm({ ...stereumForm, amount: e.target.value })} />
               </div>
-              <div className={`p-4 rounded-2xl border ${isDark ? "border-white/10" : "border-slate-200"}`}>
-                <div className={`text-xs uppercase tracking-wider mb-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>Flujo previsto</div>
-                <p className={`text-xs ${isDark ? "text-slate-300" : "text-slate-700"}`}>Bs -&gt; USDT/USDC -&gt; billetera -&gt; asignacion controlada por RiskGuard.</p>
+              <div>
+                <span className={label}>Moneda</span>
+                <input className={input} value={stereumForm.currency} onChange={(e) => setStereumForm({ ...stereumForm, currency: e.target.value })} />
               </div>
-              <div className={`p-4 rounded-2xl border ${isDark ? "border-white/10" : "border-slate-200"}`}>
-                <div className={`text-xs uppercase tracking-wider mb-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>Estado</div>
-                <span className={chip(bandChip("ambar"))}>por integrar (API)</span>
+              <div>
+                <span className={label}>Descripcion</span>
+                <input className={input} value={stereumForm.description} onChange={(e) => setStereumForm({ ...stereumForm, description: e.target.value })} />
               </div>
             </div>
-            <p className={`mt-4 text-[11px] ${isDark ? "text-slate-500" : "text-slate-500"}`}>
-              Nota honesta: el riel de fondeo estaba documentado como opcional en el stack; aun no hay integracion
-              de API con Stereum. Esta seccion deja el punto de enganche y el flujo definido.
+            <button onClick={sendStereum} className="mt-4 px-5 py-2.5 rounded-md text-sm font-bold bg-gradient-to-r from-emerald-600 to-cyan-600 text-white">
+              Enviar transferencia firmada
+            </button>
+            {stereumOut && <p className="mt-3 text-xs font-mono text-slate-600">{stereumOut}</p>}
+
+            <p className="mt-4 text-[11px] text-slate-500">
+              Las credenciales viven solo en el proxy server-side (`.env`), nunca en el navegador. Endpoint:
+              `POST /api/v1/transfers/send` con firma HMAC-SHA256 (`x-api-key`, `x-signature`, `x-timestamp`).
             </p>
           </div>
         </section>

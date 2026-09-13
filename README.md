@@ -237,6 +237,24 @@ Apunta a Fuji por defecto. Requiere sembrar la demo (una vez):
 pnpm run seed:fuji     # registra protocolos con su puntaje real + politica de ejemplo
 ```
 
+## Fondeo con Stereum (rampa fiat)
+
+Stereum (https://stereum.tech) es una API de pagos en Bolivia con stablecoin. La integracion
+es **server-side**: las credenciales viven en `.env` y un proxy firma las peticiones con
+**HMAC-SHA256** (`x-api-key`, `x-signature`, `x-timestamp`). El navegador nunca las ve.
+
+```powershell
+pnpm run stereum:proxy     # http://localhost:8788
+#   GET  /health                      estado de credenciales/cuenta
+#   GET  /rates?currency=BOB          comision estimada
+#   POST /api/stereum/transfers/send  transferencia firmada
+```
+
+El endpoint usado es `POST /api/v1/transfers/send`. Si Stereum responde
+"**No existe la cuenta del que inicia la transferencia**", hay que **habilitar la Cuenta
+Mainnet** en https://console.stereum.tech. El frontend (seccion **Datos -> Fondeo**) muestra
+ese estado en vivo.
+
 ## Puesta en marcha
 
 ```powershell
