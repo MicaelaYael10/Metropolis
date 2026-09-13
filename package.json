@@ -2,6 +2,7 @@
   "name": "riskguard-avax",
   "version": "0.2.0",
   "private": true,
+  "packageManager": "pnpm@11.1.2",
   "description": "RiskGuard - agente de gestion de riesgo para rendimiento pasivo en DeFi sobre Avalanche",
   "scripts": {
     "build": "forge build",

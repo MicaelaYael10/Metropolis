@@ -1,6 +1,7 @@
 {
   "name": "riskguard-web",
   "private": true,
+  "packageManager": "pnpm@11.1.2",
   "version": "0.2.0",
   "type": "module",
   "description": "Frontend de RiskGuard: politica, protocolos, control previo, motor off-chain y registro on-chain",
