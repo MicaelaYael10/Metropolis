@@ -375,16 +375,32 @@ motivo 4. El frontend muestra ese registro en vivo.
 
 ## Estado del repositorio
 
-El repositorio **ya esta inicializado** localmente (`git init`, sin remoto) y `lib/forge-std` esta
-agregado como **submodulo de git**. Falta configurar el remoto y hacer los commits:
+- Repositorio con remoto en **GitLab** (`0xronaldo/agentavaxt1`); `main` al dia.
+- `lib/forge-std` esta como **submodulo de git**: al clonar, traerlo con
+  `git submodule update --init --recursive`.
+- Ultimos commits: agente on-chain + colector + x402 + frontend; plataforma en 2 niveles;
+  landing con metricas; integracion con Stereum.
 
-```powershell
-git add .
-git commit -m "RiskGuard: contratos en Foundry, motor de riesgo y backtesting"
-git branch -M main
-git remote add origin <URL_DEL_REPO>
-git push -u origin main
-```
+### Verificacion final
 
-> Al clonar en otra maquina, traer el submodulo con
-> `git submodule update --init --recursive`.
+| Suite | Resultado |
+|-------|-----------|
+| `forge test` | 33/33 |
+| `pnpm run test:engine` | 52/52 |
+| `pnpm run test:e2e` | 10/10 |
+| `x402 pnpm run smoke` | 8/8 |
+| `ascii-lint` | limpio (49 archivos) |
+
+Servicios locales: web (dev) en `http://localhost:4173` y proxy de Stereum en
+`http://localhost:8788`.
+
+### Despliegue (Vercel)
+
+El frontend vive en `web/`. En Vercel: **Root Directory = `web`**, framework **Vite**,
+install `pnpm install`, build `pnpm build`, output `dist`, Node 20+.
+
+### Pendientes
+
+- [ ] Habilitar la **Cuenta Mainnet** en Stereum para operar `transfers/send`.
+- [ ] Indexer on-chain sostenido para cobertura historica completa.
+- [ ] `SNOWTRACE_API_KEY` (opcional) para verificacion adicional ademas de Sourcify.
