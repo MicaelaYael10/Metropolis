@@ -396,8 +396,37 @@ Servicios locales: web (dev) en `http://localhost:4173` y proxy de Stereum en
 
 ### Despliegue (Vercel)
 
-El frontend vive en `web/`. En Vercel: **Root Directory = `web`**, framework **Vite**,
-install `pnpm install`, build `pnpm build`, output `dist`, Node 20+.
+El frontend vive en `web/`; la raiz del repositorio es contratos y motor, asi que **no se puede
+desplegar desde la raiz sin decirle a Vercel donde esta la app**.
+
+**Opcion A (la mas simple): desplegar solo la carpeta del frontend.**
+
+```sh
+cd web
+pnpm install
+pnpm build
+vercel --prod
+```
+
+**Opcion B (desde la raiz, ya configurada):** `vercel.json` redirige la instalacion y el build a
+`web/` y publica `web/dist`. Sirve igual para el CLI lanzado en la raiz del repositorio y para la
+integracion con GitLab (Root Directory = raiz del repositorio).
+
+```sh
+pnpm install
+vercel --prod
+```
+
+Reglas que no hay que romper:
+
+- `pnpm run build` en la raiz **construye el frontend**. Los contratos se compilan aparte con
+  `pnpm run build:contracts` (`forge build`).
+- **Foundry no existe en el contenedor de Vercel.** Cualquier script de build que llame a `forge`
+  rompe el deploy con `forge: command not found`.
+- Si en el panel de Vercel hay un *Build Command* propio, debe quedar en `pnpm run build` (o
+  vaciarse, para que mande `vercel.json`).
+- `.vercelignore` deja fuera `lib/`, `out/`, `data/cache/`, `reports/` y `x402/`: sin el, el
+  CLI intenta subir cientos de MB que no se usan.
 
 ### Pendientes
 
