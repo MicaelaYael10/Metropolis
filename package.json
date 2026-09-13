@@ -5,7 +5,8 @@
   "packageManager": "pnpm@11.1.2",
   "description": "RiskGuard - agente de gestion de riesgo para rendimiento pasivo en DeFi sobre Avalanche",
   "scripts": {
-    "build": "forge build",
+    "build": "pnpm --dir web install && pnpm --dir web build",
+    "build:contracts": "forge build",
     "test": "forge test -vv",
     "fmt": "forge fmt",
     "deploy:fuji": "forge script script/Deploy.s.sol --rpc-url avax_fuji --broadcast",

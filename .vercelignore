@@ -1,0 +1,32 @@
+# Archivos que NO viajan al contenedor de Vercel.
+# Para construir el frontend solo hace falta web/. Todo lo de abajo es local,
+# derivado o pertenece a los contratos, y no interviene en el build de Vite.
+
+# Contratos y artefactos de Foundry
+lib/
+out/
+cache/
+broadcast/
+
+# Datos y reportes generados (pesan cientos de MB)
+data/cache/
+reports/
+
+# Entorno y secretos
+.env
+.env.*
+web/.env
+web/.env.*
+
+# Registros
+*.log
+
+# Modulos instalados y salida previa (se rehacen en el contenedor)
+node_modules/
+web/node_modules/
+web/dist/
+
+# Otros proyectos y material grafico: no se despliegan
+x402/
+brand/
+web/*.png
