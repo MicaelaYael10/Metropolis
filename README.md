@@ -3,6 +3,18 @@
 > **ETH Bolivia Buildathon 2026** - Bounty de **Avalanche** ($200)
 > Cadena: **Avalanche C-Chain** (`43114`) - Pruebas: Fuji (`43113`)
 
+## Demo
+
+| Que | Donde |
+|-----|-------|
+| App en vivo | **https://9c33b468a129d9.lhr.life** |
+| Contratos en Fuji | [`RiskGuard`](https://testnet.snowtrace.io/address/0xF3Cf73E668F33FB83476aD689170Eb9E0F2bf197) - [`ProtocolRegistry`](https://testnet.snowtrace.io/address/0xdefff21917B5Efbf6BAf85B597686B2DaB8dD135) - [`AgentLog`](https://testnet.snowtrace.io/address/0x26c59009A3b771aBCb6A14227E17763aA6b0Da36) |
+| Codigo | https://gitlab.com/0xronaldo/agentavaxt1 |
+| Guion de demo | [5 minutos](#guion-de-demo-5-minutos) |
+
+La URL de la app sale de un **tunel SSH desde el portatil del equipo**: anda mientras esa terminal
+siga abierta. Para levantarla de nuevo, ver [Publicar](#publicar).
+
 ## El problema
 
 Una persona tiene stablecoins ociosas y podria generar rendimiento en DeFi, pero:
@@ -16,8 +28,8 @@ Una persona tiene stablecoins ociosas y podria generar rendimiento en DeFi, pero
 
 ## La pregunta que responde
 
-> ?En que protocolo DeFi **ya existente** es seguro colocar los activos del usuario **ahora**,
-> y sigue siendo seguro con el tiempo?
+> En que protocolo DeFi **ya existente** conviene poner los activos del usuario **ahora**, y
+> sigue siendo seguro con el tiempo.
 
 **No es** un agente de trading, no predice precios, no es casa de cambio, **no custodia fondos** y
 no da asesoria de inversion. Ver el alcance completo en
@@ -46,7 +58,7 @@ Usuario --> App web (billetera conectada, sin custodia)
                 |      |-- scoring CSBC    -> puntaje 0..100 con motivos explicables
                 |      `-- Monte Carlo     -> rango esperado + P(brecha)
                 |
-                |--> RiskGuard.checkOperation()      ?la politica lo permite?
+                |--> RiskGuard.checkOperation()      (revisa la politica)
                 |--> RiskGuard.commitOperation()     solo si paso (si no, revierte)
                 `--> RiskGuard.recordRejection()     guarda la perdida evitada
 ```
@@ -122,7 +134,7 @@ no caer en sesgo de supervivencia.
 | Precision | 7,56 % |
 | Tasa de falsos positivos | 7,61 % |
 | Cobertura de senales | 45,2 % |
-| ?Concluyente? | **No** |
+| Resultado concluyente | **No** |
 
 **El modelo es debil, y el repositorio lo dice.** Solo el 45,2 % del peso del modelo tiene datos
 disponibles: las cinco senales que detectan el estres previo a un exploit (retiros masivos, cambios
@@ -258,27 +270,25 @@ ese estado en vivo.
 ## Puesta en marcha
 
 ```powershell
-# Contratos (Foundry)
-forge build
-forge test
-
-# Motor de riesgo (Node puro, sin dependencias)
-pnpm run test:engine
-
-# Prueba end-to-end local: Anvil + despliegue + politica + bloqueo
-pnpm run test:e2e
-
-# Puntuar un protocolo a partir de sus senales (tabla por lapso)
-pnpm run score -- --file mis-senales.json
-
-# Datos y backtesting
-pnpm run dataset:build                              # construye el dataset REAL (DefiLlama)
-pnpm run backtest:real                              # backtest real + barrido de umbral
-pnpm run collect:onchain -- --months 18 --max-snapshots 3   # suma senales on-chain
-pnpm run backtest:onchain                           # backtest con el dataset enriquecido
-pnpm run backtest -- --dataset data/dataset-avalanche.json --threshold 45
-pnpm run backtest                                   # dataset sintetico (avisa en pantalla)
+git clone --recurse-submodules https://gitlab.com/0xronaldo/agentavaxt1
+cd agentavaxt1
+pnpm install     # no baja nada: el proyecto no tiene dependencias de paquetes
 ```
+
+| Comando | Que hace |
+|---------|----------|
+| `forge build` | Compila los contratos |
+| `forge test` | 33 pruebas de Solidity |
+| `pnpm run test:engine` | 52 pruebas del motor de riesgo |
+| `pnpm run test:e2e` | Anvil + despliegue + politica + bloqueo, de punta a punta |
+| `pnpm run score -- --file mis-senales.json` | Puntua un protocolo (tabla por lapso) |
+| `pnpm run dataset:build` | Construye el dataset real desde DefiLlama |
+| `pnpm run backtest:real` | Backtest real + barrido de umbral |
+| `pnpm run collect:onchain -- --months 18 --max-snapshots 3` | Suma las senales on-chain |
+| `pnpm run backtest:onchain` | Backtest con el dataset enriquecido |
+| `pnpm run export:web` | Regenera `web/public/data/latest.json` |
+| `pnpm run serve:web` | Sirve `web/dist` compilado (para tuneles) |
+| `pnpm run ascii` / `pnpm run check` | Revisa ASCII / ASCII + motor |
 
 > El proyecto **no tiene dependencias de paquetes**: `pnpm` se usa solo como lanzador de scripts.
 > Convencion del workspace: `pnpm`, nunca `npm` ni `yarn` (ver `AGENTS.md` de la raiz).
@@ -376,10 +386,9 @@ motivo 4. El frontend muestra ese registro en vivo.
 ## Estado del repositorio
 
 - Repositorio con remoto en **GitLab** (`0xronaldo/agentavaxt1`); `main` al dia.
-- `lib/forge-std` esta como **submodulo de git**: al clonar, traerlo con
-  `git submodule update --init --recursive`.
-- Ultimos commits: agente on-chain + colector + x402 + frontend; plataforma en 2 niveles;
-  landing con metricas; integracion con Stereum.
+- `lib/forge-std` esta como **submodulo de git**: traerlo con
+  `git submodule update --init --recursive` (o clonar con `--recurse-submodules`).
+- Commits cortos, en minuscula y en ASCII.
 
 ### Verificacion final
 
@@ -394,7 +403,12 @@ motivo 4. El frontend muestra ese registro en vivo.
 Servicios locales: web (dev) en `http://localhost:4173` y proxy de Stereum en
 `http://localhost:8788`.
 
-### Despliegue (Vercel)
+## Publicar
+
+Dos caminos: el **tunel SSH** (URL temporal, la de la demo de arriba) y **Vercel** (deploy
+permanente).
+
+### Vercel
 
 El frontend vive en `web/`; la raiz del repositorio es contratos y motor, asi que **no se puede
 desplegar desde la raiz sin decirle a Vercel donde esta la app**.
@@ -428,7 +442,7 @@ Reglas que no hay que romper:
 - `.vercelignore` deja fuera `lib/`, `out/`, `data/cache/`, `reports/` y `x402/`: sin el, el
   CLI intenta subir cientos de MB que no se usan.
 
-### Demo publica por tunel SSH
+### Tunel SSH (la URL de la demo)
 
 El dev server de Vite **rechaza las peticiones cuyo *Host* no conoce** (proteccion contra DNS
 rebinding). Por eso `web/vite.config.ts` autoriza los dominios de **localhost.run**
@@ -451,7 +465,7 @@ ssh -R 80:localhost:3000 nokey@localhost.run
 
 **No expongas el proxy de Stereum (8788)**: firma peticiones con tu clave.
 
-### Pendientes
+## Pendientes
 
 - [ ] Habilitar la **Cuenta Mainnet** en Stereum para operar `transfers/send`.
 - [ ] Indexer on-chain sostenido para cobertura historica completa.
