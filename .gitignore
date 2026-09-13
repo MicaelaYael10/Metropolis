@@ -12,3 +12,6 @@ dist/
 .env
 reports/
 *.log
+
+# Capturas de pantalla de trabajo (no versionar)
+web/*.png
