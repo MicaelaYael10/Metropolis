@@ -428,6 +428,29 @@ Reglas que no hay que romper:
 - `.vercelignore` deja fuera `lib/`, `out/`, `data/cache/`, `reports/` y `x402/`: sin el, el
   CLI intenta subir cientos de MB que no se usan.
 
+### Demo publica por tunel SSH
+
+El dev server de Vite **rechaza las peticiones cuyo *Host* no conoce** (proteccion contra DNS
+rebinding). Por eso `web/vite.config.ts` autoriza los dominios de **localhost.run**
+(`allowedHosts: ['.lhr.life']`). Con el frontend corriendo en el puerto 4173:
+
+```sh
+ssh -R 80:localhost:4173 nokey@localhost.run
+```
+
+El comando imprime una URL `https://<algo>.lhr.life` que apunta a este equipo mientras la sesion
+SSH siga abierta. Es un tunel **anonimo y temporal**: se cae al cerrar la terminal.
+
+Para publicar la version **compilada** (mas liviana y sin HMR) en vez del dev server:
+
+```sh
+pnpm run build
+pnpm run serve:web
+ssh -R 80:localhost:3000 nokey@localhost.run
+```
+
+**No expongas el proxy de Stereum (8788)**: firma peticiones con tu clave.
+
 ### Pendientes
 
 - [ ] Habilitar la **Cuenta Mainnet** en Stereum para operar `transfers/send`.
