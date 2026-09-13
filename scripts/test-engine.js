@@ -338,6 +338,151 @@ test('menos confianza implica mas dispersion', () => {
   assert.ok(baja.p95 - baja.p5 >= alta.p95 - alta.p5);
 });
 
+/* ----------------------------------------------------------------- timeframes */
+
+console.log('\n== timeframes ==');
+
+const { resolveTimeframe, listTimeframes, TIMEFRAMES } = require('../engine/timeframes');
+
+test('resolveTimeframe entiende nombres con unidad', () => {
+  assert.equal(resolveTimeframe('1h').seconds, 3600);
+  assert.equal(resolveTimeframe('24h').days, 1);
+  assert.equal(resolveTimeframe('7d').days, 7);
+});
+
+test('resolveTimeframe acepta un numero como dias', () => {
+  assert.equal(resolveTimeframe(90).days, 90);
+  assert.equal(resolveTimeframe(1).nature, 'tiempo real');
+});
+
+test('resolveTimeframe parsea expresiones libres (90m, 3d, 2w)', () => {
+  assert.equal(resolveTimeframe('90m').seconds, 5400);
+  assert.equal(resolveTimeframe('3d').days, 3);
+  assert.equal(resolveTimeframe('2w').days, 14);
+});
+
+test('resolveTimeframe rechaza lapsos invalidos', () => {
+  assert.throws(() => resolveTimeframe(''), /vacio/);
+  assert.throws(() => resolveTimeframe('xyz'), /desconocido/);
+  assert.throws(() => resolveTimeframe('0h'), /invalido/);
+});
+
+test('los lapsos cortos declarados incluyen 1h, 6h, 24h y 7d', () => {
+  const names = listTimeframes('short').map((t) => t.name);
+  assert.deepEqual(names, ['1h', '6h', '24h', '7d']);
+  assert.ok(TIMEFRAMES['1y']);
+});
+
+test('el Monte Carlo de 1h simula en pasos sub-diarios', () => {
+  const s = simulate({ score: 50, threshold: 55, horizon: '1h', paths: 500, seed: 3 });
+  assert.ok(s.horizonDays < 1);
+  assert.ok(s.steps >= 1);
+  assert.ok(s.p5 <= s.p50 && s.p50 <= s.p95);
+});
+
+test('un lapso corto tiene menos dispersion que uno largo', () => {
+  const corto = simulate({ score: 50, threshold: 55, horizon: '1h', paths: 1000, seed: 9 });
+  const largo = simulate({ score: 50, threshold: 55, horizon: '90d', paths: 1000, seed: 9 });
+  assert.ok(largo.p95 - largo.p5 >= corto.p95 - corto.p5);
+});
+
+/* ------------------------------------------------------------- onchain/glacier */
+
+console.log('\n== onchain (senales puras) ==');
+
+const {
+  failedTxRate,
+  adminTxCount,
+  depositConcentration,
+  withdrawalSpike,
+  codeChangeDaysAgo,
+  AVG_BLOCK_SECONDS,
+} = require('../engine/onchain');
+
+const PROTO = '0x1111111111111111111111111111111111111111';
+const ADMIN = '0x2222222222222222222222222222222222222222';
+
+test('failedTxRate solo cuenta transacciones ENTRANTES al protocolo', () => {
+  const txs = [
+    { to: PROTO, txStatus: '1' },
+    { to: PROTO, txStatus: '0' },
+    { to: '0x9999999999999999999999999999999999999999', txStatus: '0' },
+  ];
+  const r = failedTxRate(txs, PROTO);
+  assert.equal(r.total, 2);
+  assert.equal(r.failed, 1);
+  assert.equal(r.rate, 0.5);
+});
+
+test('failedTxRate devuelve null sin transacciones (no asume 0)', () => {
+  assert.equal(failedTxRate([], PROTO), null);
+  assert.equal(failedTxRate([{ to: ADMIN, txStatus: '0' }], PROTO), null);
+});
+
+test('adminTxCount cuenta solo las enviadas por la clave admin', () => {
+  const txs = [{ from: ADMIN }, { from: ADMIN }, { from: PROTO }];
+  assert.equal(adminTxCount(txs, ADMIN), 2);
+  assert.equal(adminTxCount([], ADMIN), null);
+  assert.equal(adminTxCount(txs, null), null);
+});
+
+test('depositConcentration calcula la cuota del mayor depositante', () => {
+  const transfers = [
+    { to: PROTO, from: '0xaaa0000000000000000000000000000000000000', valueFloat: 75 },
+    { to: PROTO, from: '0xbbb0000000000000000000000000000000000000', valueFloat: 25 },
+    { to: PROTO, from: '0xbbb0000000000000000000000000000000000000', valueFloat: 0 }, // se ignora
+  ];
+  const r = depositConcentration(transfers, PROTO);
+  assert.equal(Math.round(r.share * 100), 75);
+  assert.equal(r.depositors, 2);
+});
+
+test('depositConcentration devuelve null sin depositos', () => {
+  assert.equal(depositConcentration([{ from: PROTO, to: ADMIN, valueFloat: 5 }], PROTO), null);
+});
+
+test('withdrawalSpike exige al menos 2 dias con retiros', () => {
+  const oneDay = [{ from: PROTO, to: ADMIN, valueFloat: 10, blockTimestamp: 1000 }];
+  assert.equal(withdrawalSpike(oneDay, PROTO, 30), null);
+});
+
+test('withdrawalSpike mide el pico contra la media', () => {
+  const day = 86400;
+  const transfers = [
+    { from: PROTO, to: ADMIN, valueFloat: 10, blockTimestamp: 0 },
+    { from: PROTO, to: ADMIN, valueFloat: 10, blockTimestamp: day },
+    { from: PROTO, to: ADMIN, valueFloat: 100, blockTimestamp: 2 * day },
+  ];
+  const r = withdrawalSpike(transfers, PROTO, 30);
+  assert.ok(r.spike > 0);
+  assert.equal(r.activeDays, 3);
+});
+
+test('codeChangeDaysAgo encuentra la ventana del ultimo cambio', () => {
+  assert.equal(codeChangeDaysAgo('now', [{ daysAgo: 7, hash: 'old' }]), 3);
+  assert.equal(
+    codeChangeDaysAgo('now', [
+      { daysAgo: 7, hash: 'now' },
+      { daysAgo: 30, hash: 'old' },
+    ]),
+    18,
+  );
+});
+
+test('codeChangeDaysAgo sin cambios devuelve mas que la ventana observada', () => {
+  const samples = [
+    { daysAgo: 7, hash: 'now' },
+    { daysAgo: 30, hash: 'now' },
+    { daysAgo: 90, hash: 'now' },
+  ];
+  assert.equal(codeChangeDaysAgo('now', samples), 91);
+  assert.equal(codeChangeDaysAgo(null, samples), null);
+});
+
+test('el bloque promedio de C-Chain es coherente (~2 s)', () => {
+  assert.ok(AVG_BLOCK_SECONDS >= 1 && AVG_BLOCK_SECONDS <= 4);
+});
+
 /* -------------------------------------------------------------------- resumen */
 
 fs.rmSync(tmpDir, { recursive: true, force: true });

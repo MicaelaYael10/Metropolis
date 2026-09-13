@@ -19,3 +19,9 @@ bracket_spacing = false
 [rpc_endpoints]
 avax_fuji = "https://api.avax-test.network/ext/bc/C/rpc"
 avax_mainnet = "https://api.avax.network/ext/bc/C/rpc"
+
+# Verificacion en el explorador. Requiere SNOWTRACE_API_KEY en el entorno (.env).
+# Obtener la clave en https://snowtrace.io/apis (Fuji: https://testnet.snowtrace.io/apis).
+[etherscan]
+avax_fuji = { key = "${SNOWTRACE_API_KEY}", chain = 43113 }
+avax_mainnet = { key = "${SNOWTRACE_API_KEY}", chain = 43114 }

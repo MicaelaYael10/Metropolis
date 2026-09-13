@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+/*
+ * Paleta riskGuard, extraida del logotipo.
+ * Ancla: #1F7488 (color del wordmark).
+ *
+ * Se redefinen las rampas de Tailwind en vez de tocar los componentes: asi las
+ * clases que ya existen en el marcado (cyan, slate, purple...) pasan a la marca
+ * sin reescribir ni un archivo.
+ */
+@theme {
+  /* --- primario: teal del wordmark --- */
+  --color-cyan-50: #edf9fb;
+  --color-cyan-100: #d3f0f5;
+  --color-cyan-200: #a8e1eb;
+  --color-cyan-300: #74cbda;
+  --color-cyan-400: #46afc3;
+  --color-cyan-500: #2c93a8;
+  --color-cyan-600: #1f7488;
+  --color-cyan-700: #1a5e6e;
+  --color-cyan-800: #174c59;
+  --color-cyan-900: #143f4a;
+  --color-cyan-950: #0a262e;
+
+  /* --- secundario: azul claro del pez (#83B7DC) --- */
+  --color-purple-50: #f1f7fc;
+  --color-purple-100: #dfeefa;
+  --color-purple-200: #c4dff5;
+  --color-purple-300: #9ec9ea;
+  --color-purple-400: #83b7dc;
+  --color-purple-500: #5b9cc9;
+  --color-purple-600: #3d7fa8;
+  --color-purple-700: #33678a;
+  --color-purple-800: #2e5671;
+  --color-purple-900: #2a485f;
+  --color-purple-950: #1c2e3d;
+
+  /* --- exito: menta del pez (#9ED2BB) --- */
+  --color-emerald-50: #f0faf5;
+  --color-emerald-100: #daf3e6;
+  --color-emerald-200: #b8e7d1;
+  --color-emerald-300: #9ed2bb;
+  --color-emerald-400: #6fbc9c;
+  --color-emerald-500: #4e9c7c;
+  --color-emerald-600: #3b7d63;
+  --color-emerald-700: #316451;
+  --color-emerald-800: #2b5043;
+  --color-emerald-900: #254339;
+  --color-emerald-950: #11251e;
+
+  /* --- aviso: banda ambar del motor de riesgo --- */
+  --color-amber-50: #fdf8ec;
+  --color-amber-100: #f9edcd;
+  --color-amber-200: #f2d996;
+  --color-amber-300: #e8c06a;
+  --color-amber-400: #e8b563;
+  --color-amber-500: #d29a3c;
+  --color-amber-600: #b27c25;
+  --color-amber-700: #8e6120;
+  --color-amber-800: #744e20;
+  --color-amber-900: #62411f;
+  --color-amber-950: #39220d;
+
+  /* --- peligro: banda roja del motor de riesgo --- */
+  --color-red-50: #fdf2f1;
+  --color-red-100: #fbe2e0;
+  --color-red-200: #f7c9c6;
+  --color-red-300: #eaa5a0;
+  --color-red-400: #e8736b;
+  --color-red-500: #d9534b;
+  --color-red-600: #b93f38;
+  --color-red-700: #9a352f;
+  --color-red-800: #7f302c;
+  --color-red-900: #6b2c29;
+  --color-red-950: #3d1513;
+
+  /* --- neutro: gris con tinte teal, no el violeta de la plantilla --- */
+  --color-slate-50: #f4f8f9;
+  --color-slate-100: #e6eef0;
+  --color-slate-200: #cfdde1;
+  --color-slate-300: #a9bfc6;
+  --color-slate-400: #7a97a1;
+  --color-slate-500: #587782;
+  --color-slate-600: #435e68;
+  --color-slate-700: #374c54;
+  --color-slate-800: #2a3b42;
+  --color-slate-900: #1b272c;
+  --color-slate-950: #0c1418;
+
+  /* --- fondos de la app --- */
+  --color-ink-950: #04090b;
+  --color-ink-900: #070f12;
+  --color-ink-850: #0a1417;
+  --color-ink-800: #0d181c;
+  --color-ink-700: #101e22;
+
+  /* --- rampas heredadas: se alinean con la marca para que nada quede fuera --- */
+  --color-teal-400: #46afc3;
+  --color-teal-500: #2c93a8;
+  --color-teal-600: #1f7488;
+  --color-sky-300: #9ec9ea;
+  --color-sky-400: #83b7dc;
+  --color-sky-500: #5b9cc9;
+  --color-sky-600: #3d7fa8;
+  --color-blue-300: #9ec9ea;
+  --color-blue-400: #83b7dc;
+  --color-blue-500: #5b9cc9;
+  --color-blue-600: #3d7fa8;
+  --color-indigo-400: #74cbda;
+  --color-indigo-500: #2c93a8;
+  --color-indigo-600: #1f7488;
+  --color-violet-400: #83b7dc;
+  --color-violet-500: #5b9cc9;
+  --color-fuchsia-400: #74cbda;
+  --color-fuchsia-500: #2c93a8;
+  --color-pink-400: #9ec9ea;
+  --color-pink-500: #5b9cc9;
+  --color-rose-300: #eaa5a0;
+  --color-rose-400: #e8736b;
+  --color-rose-500: #d9534b;
+  --color-rose-600: #b93f38;
+  --color-lime-400: #9ed2bb;
+  --color-green-400: #6fbc9c;
+  --color-green-500: #4e9c7c;
+  --color-yellow-400: #e8c06a;
+  --color-orange-400: #e8b563;
+  --color-zinc-400: #7a97a1;
+  --color-zinc-500: #587782;
+  --color-gray-400: #7a97a1;
+  --color-gray-500: #587782;
+  --color-neutral-400: #7a97a1;
+  --color-neutral-500: #587782;
+  --color-stone-400: #7a97a1;
+  --color-stone-500: #587782;
+
+  /* --- movimiento --- */
+  --animate-rg-pulse: rg-pulse 1.6s ease-in-out infinite;
+  --animate-rg-sweep: rg-sweep 1.4s linear infinite;
+  --animate-rg-rise: rg-rise 0.35s ease-out both;
+}
+
+@keyframes rg-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1); }
+}
+
+@keyframes rg-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes rg-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Tema claro: base "plomo" muy suavizada con un halo frio sutil. */
+  background:
+    radial-gradient(1200px 620px at 50% -8%, #f7f9fb 0%, #eaeef3 46%, #dfe5ec 100%);
+  background-attachment: fixed;
+  color: #14212a;
+}
+
+/* Acento electrico para el tema claro. */
+:root {
+  --rg-electric: #4f6bff;
+  --rg-electric-soft: #8ea2ff;
+  --rg-plomo-900: #0f1a22;
+  --rg-plomo-700: #33424d;
+  --rg-plomo-500: #5a6b78;
+  --rg-plomo-300: #9aa9b6;
+  --rg-plomo-100: #e6ebf0;
+}
+
+::selection {
+  background: var(--color-cyan-500);
+  color: #fff;
+}
+
+/* barra de scroll discreta, en la gama de la marca */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-slate-700) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-slate-700);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-slate-600);
+  background-clip: content-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -70,16 +70,27 @@ riskguard-avax/
 |   `--- Deploy.s.sol               # despliegue con forge script
 |--- engine/                        # motor de riesgo (JavaScript puro, sin dependencias)
 |   |--- scoring.js                 # puntaje CSBC; repesa pesos si faltan senales
-|   |--- montecarlo.js              # simulacion en 2 capas (tiempo real + ciclos)
+|   |--- montecarlo.js              # simulacion por lapso (sub-diaria y ciclos)
+|   |--- timeframes.js              # lapsos con nombre (1h, 6h, 24h, 7d, 30d, 90d...)
 |   |--- backtest.js                # arnes de backtesting con 4 metricas + cobertura
 |   |--- defillama.js               # cliente de datos REALES (DefiLlama) con cache
+|   |--- glacier.js                 # cliente de la Avalanche Data API (tx y transfers)
+|   |--- onchain.js                 # 5 senales on-chain via Glacier + RPC
 |   |--- synthetic.js               # dataset sintetico reproducible (solo pruebas)
 |   `--- dataset.js                 # carga y validacion de datasets
 |--- scripts/                       # utilidades CLI en Node (sin dependencias)
-|   |--- test-engine.js             # 35 pruebas del motor
+|   |--- test-engine.js             # 52 pruebas del motor
+|   |--- e2e-anvil.js               # prueba end-to-end local (Anvil + cast)
 |   |--- score-cli.js               # puntuar un protocolo desde la terminal
 |   |--- build-dataset.js           # construye el dataset REAL de Avalanche
+|   |--- collect-onchain.js         # enriquece el dataset con senales on-chain
 |   `--- backtest.js                # informe de backtesting
+|--- x402/                          # pago de datos premium (SDK @x402/* v2, aislado)
+|   |--- premium-server.mjs         # endpoint de riesgo detras de HTTP 402
+|   |--- agent-client.mjs           # agente que paga y consulta
+|   `--- smoke-test.mjs             # prueba offline del 402
+|--- web/                           # frontend (Vite + React + wagmi/viem)
+|   `--- src/App.tsx                # politica, protocolos, control previo y log
 |--- data/
 |   |--- dataset-avalanche.json     # dataset REAL (1 474 snapshots) - se versiona
 |   `--- cache/                     # respuestas de DefiLlama (ignorado por git)
@@ -121,6 +132,111 @@ las senales ausentes, repesa las disponibles y **reporta la cobertura**. Ver
 [`docs/BACKTESTING.md`](docs/BACKTESTING.md).
 
 
+## Lapsos cortos (timeframes)
+
+El documento de problematica pide **dos capas**: analisis en tiempo real y ciclos.
+`engine/timeframes.js` declara los lapsos con nombre y los unifica en scoring, Monte
+Carlo, colector y CLI:
+
+| Lapso | Capa | Uso |
+|-------|------|-----|
+| `1h`, `6h`, `24h` | tiempo real | estres inmediato (retiros, fallos) |
+| `7d` | corto plazo | primera senal de deterioro |
+| `30d`, `90d` | medio plazo | ventana del puntaje y del backtest |
+| `180d`, `1y` | ciclo | estacionalidad y consistencia |
+
+El Monte Carlo simula en pasos **sub-diarios** para lapsos menores a 24 h (la
+volatilidad escala con `sqrt(del paso)`), de modo que `1h` no queda en cero pasos.
+
+```powershell
+pnpm run score -- --signals '{"tvlChange30d":-0.1,"withdrawalSpikePct":0.05}'
+pnpm run score -- --signals '{...}' --horizon 6h
+```
+
+## Colector on-chain
+
+`engine/onchain.js` + `engine/glacier.js` completan las **5 senales que el dataset
+dejaba en null**:
+
+| Senal | Fuente |
+|-------|--------|
+| `failedTxRate` | Glacier: transacciones al protocolo y su estado |
+| `adminTxCount30d` | RPC `owner()` + Glacier: actividad de la clave admin |
+| `topDepositorShare` | Glacier: transfers ERC20 entrantes agrupados por origen |
+| `withdrawalSpikePct` | Glacier: salidas diarias contra la media |
+| `codeChangedDaysAgo` | RPC `eth_getCode` historico (hash del bytecode) |
+
+```powershell
+pnpm run collect:onchain -- --months 18 --max-snapshots 3
+pnpm run backtest:onchain
+```
+
+**Honestidad:** la cobertura sube en las filas enriquecidas (evaluacion **en vivo**),
+pero **no** al 100 % de la historia: cubrir 1.474 snapshots de 2021-2026 exige un
+**indexer** sostenido; los RPC publicos y Glacier no permiten barrer esa profundidad en
+una corrida. Cada senal sin evidencia queda en `null` y se anota; nunca se rellena.
+
+## Pagos x402
+
+`x402/` expone el puntaje como **dato premium** que el agente paga en Avalanche
+(HTTP 402 + EIP-3009). Es la integracion que le da funcion, no adorno, al 40 % del
+criterio. Ver [`x402/README.md`](x402/README.md).
+
+```powershell
+cd x402
+pnpm install
+pnpm run smoke     # 8 comprobaciones offline del 402
+```
+
+## Frontend (demo no custodial)
+
+`web/` es la app del agente, construida sobre el **template de diseno v4**
+(`frontend-templates/cyberfin-3d-crypto-v4`, ya reskinado con la paleta RiskGuard):
+**Vite + React + TypeScript + TailwindCSS + Three.js** para el hero 3D, con **wagmi/viem**
+para la billetera. El usuario conecta Core Wallet, define su politica, ve los protocolos
+con su puntaje on-chain y dispara el control previo. Si `checkOperation` permite,
+`commitOperation` ejecuta; si no, `recordRejection` guarda la perdida evitada.
+
+Ademas del estado on-chain, muestra el **motor off-chain** con datos reales: las **senales**
+del modelo (valor, fuente y puntos), la **cobertura** y el **Monte Carlo por lapso**
+(1h, 6h, 24h, 7d, 30d, 90d). Esos datos salen de `web/public/data/latest.json`, que se
+genera desde el dataset enriquecido:
+
+```powershell
+pnpm run export:web    # escribe web/public/data/latest.json (senales + Monte Carlo)
+```
+
+#### Secciones de la app
+
+| Panel | Que muestra |
+|-------|-------------|
+| Kit de billetera | Billeteras detectadas (EIP-6963) para conectar |
+| Perfil | Direccion, red, politica, exposicion, registro y desconexion |
+| Mi politica | Lectura de `RiskGuard.policyOf` y formulario `setPolicy` |
+| Protocolos registrados | `ProtocolRegistry.list` + riesgo y banda de cada uno |
+| Evaluar y ejecutar | `checkOperation` y luego `commitOperation`/`recordRejection` |
+| Motor de riesgo off-chain | Senales, cobertura y Monte Carlo por lapso del protocolo |
+| Matriz de riesgo | Variabilidad (p95-p5) de cada protocolo por lapso |
+| Estrategia | Tolerancia -> habilitados/bloqueados y brecha a 30 d (Monte Carlo) |
+| Fuentes y seguimiento | APIs que alimentan el puntaje (Glacier, DefiLlama, RPC...) |
+| Fondeo (Stereum) | Rampa Bs -> USDC/USDT (punto de enganche, API por integrar) |
+| Registro de decisiones | `AgentLog` en vivo (conteo y ultima decision) |
+
+Los logos de las monedas 3D (USDC, USDT, BTC, AVAX) son **SVG locales** en
+`web/public/assets/coins/`; la app no depende de CDN.
+
+```powershell
+cd web
+pnpm install
+pnpm dev        # http://localhost:3000
+```
+
+Apunta a Fuji por defecto. Requiere sembrar la demo (una vez):
+
+```powershell
+pnpm run seed:fuji     # registra protocolos con su puntaje real + politica de ejemplo
+```
+
 ## Puesta en marcha
 
 ```powershell
@@ -131,12 +247,17 @@ forge test
 # Motor de riesgo (Node puro, sin dependencias)
 pnpm run test:engine
 
-# Puntuar un protocolo a partir de sus senales
+# Prueba end-to-end local: Anvil + despliegue + politica + bloqueo
+pnpm run test:e2e
+
+# Puntuar un protocolo a partir de sus senales (tabla por lapso)
 pnpm run score -- --file mis-senales.json
 
 # Datos y backtesting
 pnpm run dataset:build                              # construye el dataset REAL (DefiLlama)
 pnpm run backtest:real                              # backtest real + barrido de umbral
+pnpm run collect:onchain -- --months 18 --max-snapshots 3   # suma senales on-chain
+pnpm run backtest:onchain                           # backtest con el dataset enriquecido
 pnpm run backtest -- --dataset data/dataset-avalanche.json --threshold 45
 pnpm run backtest                                   # dataset sintetico (avisa en pantalla)
 ```
@@ -147,14 +268,58 @@ pnpm run backtest                                   # dataset sintetico (avisa e
 ### Desplegar en Avalanche
 
 ```powershell
-$env:PRIVATE_KEY = "0x..."   # nunca versionar la clave
-forge script script/Deploy.s.sol --rpc-url avax_fuji --broadcast
-forge script script/Deploy.s.sol --rpc-url avax_mainnet --broadcast --verify
+# La clave vive en .env (gitignored); ver .env.example
+pnpm run deploy:fuji                 # testnet
+pnpm run deploy:fuji:verify          # + verificacion (requiere SNOWTRACE_API_KEY)
+pnpm run deploy:mainnet              # C-Chain
 ```
 
 El script despliega los tres contratos, conecta `RiskGuard` como escritor del `AgentLog` y
 habilita al desplegador como actualizador de puntajes.
 Faucet de Fuji: https://build.avax.network/console/primary-network/faucet
+
+#### Despliegue ya hecho en Fuji (2026-09-13)
+
+| Contrato | Direccion | Explorador |
+|----------|-----------|------------|
+| `AgentLog` | `0x26c59009A3b771aBCb6A14227E17763aA6b0Da36` | https://testnet.snowtrace.io/address/0x26c59009A3b771aBCb6A14227E17763aA6b0Da36 |
+| `ProtocolRegistry` | `0xdefff21917B5Efbf6BAf85B597686B2DaB8dD135` | https://testnet.snowtrace.io/address/0xdefff21917B5Efbf6BAf85B597686B2DaB8dD135 |
+| `RiskGuard` | `0xF3Cf73E668F33FB83476aD689170Eb9E0F2bf197` | https://testnet.snowtrace.io/address/0xF3Cf73E668F33FB83476aD689170Eb9E0F2bf197 |
+
+Cableado verificado en cadena: `AgentLog.writer = RiskGuard`,
+`ProtocolRegistry.owner = desplegador` y `RiskGuard.registry = ProtocolRegistry`.
+
+#### Verificacion del codigo (Sourcify, sin API key)
+
+Los tres contratos estan verificados con **match completo** en Sourcify:
+
+```powershell
+forge verify-contract <direccion> contracts/<Archivo>.sol:<Contrato> --chain 43113 --verifier sourcify
+```
+
+| Contrato | Sourcify |
+|----------|----------|
+| `AgentLog` | https://repo.sourcify.dev/contracts/full_match/43113/0x26c59009A3b771aBCb6A14227E17763aA6b0Da36/ |
+| `ProtocolRegistry` | https://repo.sourcify.dev/contracts/full_match/43113/0xdefff21917B5Efbf6BAf85B597686B2DaB8dD135/ |
+| `RiskGuard` | https://repo.sourcify.dev/contracts/full_match/43113/0xF3Cf73E668F33FB83476aD689170Eb9E0F2bf197/ |
+
+> Snowtrace dejo de ser el explorador de referencia; su sucesor es **RouteScan**
+> (https://routescan.io, API Etherscan-compatible y sin clave). Ademas de Sourcify,
+> se puede verificar ahi con `--verifier blockscout/custom`. Sourcify cubre Fuji y
+> mainnet sin necesitar ninguna API key.
+
+#### Flujo real firmado en Fuji (evidencia, 2026-09-13)
+
+Con la clave de testnet se ejecutaron las dos rutas del control previo:
+
+| Accion | Protocolo | Resultado | Transaccion |
+|--------|-----------|-----------|-------------|
+| `commitOperation` | Folks (riesgo 15) | **ejecutada** (permitida) | [`0xdd33b8...b29f6`](https://testnet.snowtrace.io/tx/0xdd33b894b94d8fc4ea81faab0e186e7ac07a746c1dd6f76935b1ae3f801b29f6) |
+| `recordRejection` | Zabu (riesgo 88) | **bloqueada** (motivo 4) | [`0xaab4fa...7a28`](https://testnet.snowtrace.io/tx/0xaab4fa53952f1ca79ab2bd0a2fd9bc8ac6125972191830f011c0b2f0c27b7a28) |
+
+Estado resultante leido on-chain: `AgentLog.count() = 2`, `totalCommitted = 100`,
+`totalRejections = 1`, y la ultima entrada del `AgentLog` es el bloqueo con puntaje 88 y
+motivo 4. El frontend muestra ese registro en vivo.
 
 ## Guion de demo (5 minutos)
 

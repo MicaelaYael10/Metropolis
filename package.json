@@ -8,14 +8,20 @@
     "test": "forge test -vv",
     "fmt": "forge fmt",
     "deploy:fuji": "forge script script/Deploy.s.sol --rpc-url avax_fuji --broadcast",
+    "deploy:fuji:verify": "forge script script/Deploy.s.sol --rpc-url avax_fuji --broadcast --verify",
     "deploy:mainnet": "forge script script/Deploy.s.sol --rpc-url avax_mainnet --broadcast --verify",
+    "seed:fuji": "node scripts/seed-fuji.js",
+    "export:web": "node scripts/export-web-data.js",
     "test:engine": "node scripts/test-engine.js",
+    "test:e2e": "node scripts/e2e-anvil.js",
     "ascii": "node scripts/ascii-lint.js",
     "check": "node scripts/ascii-lint.js && node scripts/test-engine.js",
     "score": "node scripts/score-cli.js",
     "dataset:build": "node scripts/build-dataset.js",
+    "collect:onchain": "node scripts/collect-onchain.js",
     "backtest": "node scripts/backtest.js",
-    "backtest:real": "node scripts/backtest.js --dataset data/dataset-avalanche.json --threshold 55 --sweep"
+    "backtest:real": "node scripts/backtest.js --dataset data/dataset-avalanche.json --threshold 55 --sweep",
+    "backtest:onchain": "node scripts/backtest.js --dataset data/dataset-avalanche-onchain.json --threshold 55 --sweep"
   },
   "dependencies": {}
 }

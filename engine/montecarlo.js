@@ -4,6 +4,8 @@
 
 "use strict";
 
+const { resolveTimeframe } = require("./timeframes");
+
 /** PRNG reproducible (mulberry32). */
 function mulberry32(seed) {
   let a = seed >>> 0;
@@ -37,7 +39,8 @@ function percentile(sorted, p) {
  * @property {number} score            puntaje actual 0..100
  * @property {number} [confidence]     confianza del puntaje 0..100
  * @property {number} [threshold]      umbral de politica (p. ej. 55)
- * @property {number} [horizonDays]    horizonte de la simulacion
+ * @property {string|number} [horizon] lapso ('1h', '24h', '7d'...) o dias
+ * @property {number} [horizonDays]    horizonte de la simulacion (alternativo a horizon)
  * @property {number} [paths]          numero de caminos
  * @property {number} [volPerDay]      volatilidad diaria del puntaje
  * @property {number} [driftPerDay]    deriva diaria base
@@ -48,14 +51,15 @@ function percentile(sorted, p) {
 
 /**
  * @param {MonteCarloInput} input
- * @returns {{p5:number,p50:number,p95:number,maxP95:number,breachProbability:number,expectedDaysToBreach:number,paths:number,horizonDays:number,seed:number}}
+ * @returns {{p5:number,p50:number,p95:number,maxP95:number,breachProbability:number,expectedDaysToBreach:number,paths:number,horizonDays:number,steps:number,stepDays:number,seed:number}}
  */
 function simulate(input) {
   const {
     score: startScore,
     confidence = 100,
     threshold = 55,
-    horizonDays = 90,
+    horizon = null,
+    horizonDays: horizonDaysInput = 90,
     paths = 2000,
     volPerDay = 0.9,
     driftPerDay = 0,
@@ -64,36 +68,45 @@ function simulate(input) {
     startMonth = 0,
   } = input;
 
+  const horizonDays = horizon !== null && horizon !== undefined ? resolveTimeframe(horizon).days : horizonDaysInput;
+
+  // Lapsos cortos se simulan en horas para que '1h' no quede en cero pasos.
+  const totalHours = horizonDays * 24;
+  const steps = horizonDays <= 1 ? Math.max(1, Math.round(totalHours)) : Math.max(1, Math.round(horizonDays));
+  const stepDays = horizonDays / steps;
+
   const rnd = mulberry32(seed);
   const finals = [];
   const maxes = [];
   let breaches = 0;
   let daysToBreachSum = 0;
 
-  // Menos confianza => mas dispersion.
+  // Menos confianza => mas dispersion. La volatilidad escala con sqrt(del paso).
   const vol = volPerDay * (1 + (100 - confidence) / 100);
+  const volStep = vol * Math.sqrt(stepDays);
+  const driftStep = driftPerDay * stepDays;
 
   for (let p = 0; p < paths; p++) {
     let v = startScore;
     let maxV = startScore;
     let breachedAt = -1;
 
-    for (let d = 0; d < horizonDays; d++) {
-      const month = (startMonth + Math.floor(d / 30)) % 12;
+    for (let s = 0; s < steps; s++) {
+      const month = (startMonth + Math.floor((s * stepDays) / 30)) % 12;
       // CAPA B: la estacionalidad ajusta la deriva del mes en curso.
       const cycle = cycleMonthly && cycleMonthly.length === 12 ? cycleMonthly[month] : 0;
-      const drift = driftPerDay + cycle;
-      v += drift + normal(rnd) * vol;
+      const drift = driftStep + cycle * stepDays;
+      v += drift + normal(rnd) * volStep;
       v = Math.max(0, Math.min(100, v));
       if (v > maxV) maxV = v;
-      if (breachedAt < 0 && v > threshold) breachedAt = d + 1;
+      if (breachedAt < 0 && v > threshold) breachedAt = s + 1;
     }
 
     finals.push(v);
     maxes.push(maxV);
     if (breachedAt > 0) {
       breaches += 1;
-      daysToBreachSum += breachedAt;
+      daysToBreachSum += breachedAt * stepDays;
     }
   }
 
@@ -106,9 +119,11 @@ function simulate(input) {
     p95: Number(percentile(finals, 95).toFixed(2)),
     maxP95: Number(percentile(maxes, 95).toFixed(2)),
     breachProbability: Number((breaches / paths).toFixed(4)),
-    expectedDaysToBreach: breaches > 0 ? Number((daysToBreachSum / breaches).toFixed(1)) : 0,
+    expectedDaysToBreach: breaches > 0 ? Number((daysToBreachSum / breaches).toFixed(3)) : 0,
     paths,
-    horizonDays,
+    horizonDays: Number(horizonDays.toFixed(6)),
+    steps,
+    stepDays,
     seed,
   };
 }

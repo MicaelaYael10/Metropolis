@@ -7,6 +7,7 @@
 const fs = require("fs");
 const { score } = require("../engine/scoring");
 const { simulate } = require("../engine/montecarlo");
+const { resolveTimeframe, listTimeframes } = require("../engine/timeframes");
 
 function arg(name, fallback = null) {
   const i = process.argv.indexOf(`--${name}`);
@@ -31,7 +32,7 @@ function main() {
 
   console.log("");
   console.log(`Protocolo: ${input.name || input.id || "(sin nombre)"}`);
-  console.log(`PUNTAJE DE RIESGO: ${result.score}/100  ->  banda ${result.band.name.toUpperCase()} (codigo ${result.band.code})`);
+  console.log(`PUNTAJE DE RIESGO: ${result.score}/100  ->  banda ${String(result.band).toUpperCase()} (cobertura ${result.coverage}%)`);
   console.log(`Confianza del puntaje: ${result.confidence}/100`);
   console.log("");
   console.log("Aporte por senal:");
@@ -44,11 +45,27 @@ function main() {
   result.reasons.forEach((r, i) => console.log(`  ${i + 1}. ${r}`));
 
   const threshold = Number(arg("threshold", 55));
-  const mc = simulate({ score: result.score, confidence: result.confidence, threshold, seed: 42 });
-  console.log("");
-  console.log(`Monte Carlo a 90 dias (umbral ${threshold}):`);
-  console.log(`  p5 ${mc.p5} / p50 ${mc.p50} / p95 ${mc.p95}`);
-  console.log(`  P(superar el umbral) = ${(mc.breachProbability * 100).toFixed(2)} %`);
+  const single = arg("horizon", null);
+  const horizonsArg = arg("horizons", null);
+
+  if (single) {
+    const mc = simulate({ score: result.score, confidence: result.confidence, threshold, horizon: single, seed: 42 });
+    console.log("");
+    console.log(`Monte Carlo a ${resolveTimeframe(single).label} (umbral ${threshold}):`);
+    console.log(`  p5 ${mc.p5} / p50 ${mc.p50} / p95 ${mc.p95}`);
+    console.log(`  P(superar el umbral) = ${(mc.breachProbability * 100).toFixed(2)} %`);
+  } else {
+    // Por defecto, la tabla de lapsos cortos (capa de tiempo real) + medio/ciclo.
+    const names = horizonsArg ? String(horizonsArg).split(",").map((s) => s.trim()) : ["1h", "6h", "24h", "7d", "30d", "90d"];
+    console.log("");
+    console.log(`Monte Carlo por lapso (umbral ${threshold}):`);
+    for (const name of names) {
+      const tf = resolveTimeframe(name);
+      const mc = simulate({ score: result.score, confidence: result.confidence, threshold, horizon: name, seed: 42 });
+      const breach = (mc.breachProbability * 100).toFixed(2).padStart(6);
+      console.log(`  ${tf.label.padEnd(10)} p5 ${String(mc.p5).padStart(6)} / p50 ${String(mc.p50).padStart(6)} / p95 ${String(mc.p95).padStart(6)}   P(brecha) ${breach}%`);
+    }
+  }
   console.log("");
 }
 

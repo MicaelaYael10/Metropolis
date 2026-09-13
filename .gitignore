@@ -6,7 +6,9 @@ broadcast/
 
 # Node
 node_modules/
+dist/
 
 # Entorno y reportes generados
 .env
 reports/
+*.log

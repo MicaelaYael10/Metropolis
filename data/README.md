@@ -86,6 +86,34 @@ Con este dataset la cobertura es del **45,2 %** del peso total del modelo.
   Esta en `.gitignore` porque es material derivado y regenerable.
 - `dataset-avalanche.json` **si se versiona**: es la evidencia del backtest.
 
+## `dataset-avalanche-onchain.json` - dataset enriquecido
+
+Generado por `scripts/collect-onchain.js`, partiendo del dataset real y sumando las
+**5 senales on-chain** con Glacier Data API + RPC de C-Chain (`engine/onchain.js`).
+
+```powershell
+pnpm run collect:onchain -- --months 18 --max-snapshots 3 --window 30d
+```
+
+| Parametro | Por defecto | Descripcion |
+|-----------|-------------|-------------|
+| `--months` | 18 | Antiguedad maxima de los snapshots a enriquecer |
+| `--max-snapshots` | 3 | Snapshots por protocolo (los mas recientes) |
+| `--protocols` | todas | Lista separada por comas |
+| `--window` | `30d` | Lapso del analisis (`1h`, `24h`, `7d`, `30d`...) |
+| `--out` | `data/dataset-avalanche-onchain.json` | Salida |
+| `--force` | - | Ignora la cache de Glacier |
+
+- Solo se procesan direcciones que existen como **contrato en C-Chain** (se verifica con
+  `eth_getCode`); las direcciones de otras cadenas (`arbitrum:0x...`) se descartan y quedan
+  registradas en `meta.onchain.skipped`.
+- Cada fila enriquecida guarda `onchainEvidence` (rango de bloques, conteos) y, si aplica,
+  `onchainNotes` con el motivo por el que una senal no se pudo medir.
+- **No cubre el 100 % de la historia**: enriquecer 1.474 snapshots de 2021-2026 exige un
+  indexer sostenido. Por defecto se enriquecen los snapshots recientes (evaluacion en vivo).
+- El dataset enriquecido **se versiona** como evidencia; la cache (`data/cache/glacier/`)
+  queda ignorada.
+
 ## Dataset sintetico
 
 Sin `--dataset`, `pnpm run backtest` usa `engine/synthetic.js`, un generador reproducible por

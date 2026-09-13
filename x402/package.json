@@ -1,0 +1,20 @@
+{
+  "name": "riskguard-x402",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Capa x402 de RiskGuard: el agente paga datos premium de riesgo en Avalanche con HTTP 402",
+  "scripts": {
+    "server": "node premium-server.mjs",
+    "agent": "node agent-client.mjs",
+    "smoke": "node smoke-test.mjs"
+  },
+  "dependencies": {
+    "@x402/core": "^2.25.0",
+    "@x402/evm": "^2.25.0",
+    "@x402/express": "^2.25.0",
+    "@x402/fetch": "^2.25.0",
+    "express": "^4.21.2",
+    "viem": "^2.56.3"
+  }
+}

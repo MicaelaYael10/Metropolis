@@ -17,10 +17,13 @@ const ROOT = path.join(__dirname, '..');
 const EXTENSIONS = new Set(['.sol', '.js', '.md', '.json', '.toml', '.svg', '.html']);
 
 // Carpetas que no son codigo propio.
-const SKIP_DIRS = new Set(['node_modules', 'lib', 'out', 'cache', 'broadcast', 'reports', '.git']);
+const SKIP_DIRS = new Set(['node_modules', 'lib', 'out', 'cache', 'broadcast', 'reports', 'dist', '.git']);
 
-// Excluidos: el dataset trae nombres de protocolo tal como los publica DefiLlama.
-const SKIP_FILES = new Set([path.join('data', 'dataset-avalanche.json')]);
+// Excluidos: los datasets traen nombres de protocolo tal como los publica DefiLlama.
+const SKIP_FILES = new Set([
+  path.join('data', 'dataset-avalanche.json'),
+  path.join('data', 'dataset-avalanche-onchain.json'),
+]);
 
 const MAP = {
   '\u00e1': 'a', '\u00e0': 'a', '\u00e4': 'a', '\u00e2': 'a', '\u00e3': 'a', '\u00e5': 'a',

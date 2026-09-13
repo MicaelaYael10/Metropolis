@@ -136,8 +136,13 @@ incidentes no deja rastro en los datos disponibles.
 
 ## Que falta para que el backtest sea concluyente
 
-- [ ] **Colector on-chain** (`engine/onchain.js`): `failedTxRate` y `adminTxCount30d` via RPC de
-      C-Chain; `topDepositorShare` y `withdrawalSpikePct` via indexer de eventos.
+- [x] ~~Colector on-chain~~ - `engine/onchain.js` + `engine/glacier.js` (Glacier Data API
+      + RPC). Completa las 5 senales para los snapshots que se procesan:
+      `failedTxRate`, `adminTxCount30d`, `topDepositorShare`, `withdrawalSpikePct`,
+      `codeChangedDaysAgo`. Se corre con `pnpm run collect:onchain`.
+      **Limite honesto:** cubrir los 1.474 snapshots historicos exige un indexer sostenido;
+      los RPC publicos y Glacier no permiten barrer esa profundidad en una corrida, asi que
+      la cobertura sube en las filas enriquecidas (evaluacion en vivo), no en toda la serie.
 - [x] ~~Construir el dataset real~~ - hecho, `data/dataset-avalanche.json`.
 - [ ] Ampliar la ventana a otras cadenas (Ethereum, BSC) para subir el numero de positivos.
 - [ ] Congelar el umbral **antes** de correr el backtest definitivo y publicarlo con sus limites.
