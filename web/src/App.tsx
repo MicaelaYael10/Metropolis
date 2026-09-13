@@ -115,10 +115,8 @@ const API_SOURCES = [
 ];
 
 const SEGMENTS = [
-  { id: "panel", label: "Panel", icon: Gauge, desc: "Tu politica, tus protocolos y el control previo de cada operacion." },
-  { id: "riesgo", label: "Riesgo", icon: LineChart, desc: "Matriz de variabilidad y probabilidad de brecha por lapso." },
-  { id: "estrategia", label: "Estrategia", icon: Sliders, desc: "Prediccion segun tu perfil de tolerancia al riesgo." },
-  { id: "datos", label: "Datos", icon: Radio, desc: "Fuentes y seguimiento: APIs, verificacion y fondeo." },
+  { id: "resumen", label: "Resumen", icon: Gauge, desc: "Politica, protocolos, control previo, motor off-chain y registro." },
+  { id: "analisis", label: "Analisis y datos", icon: LineChart, desc: "Matriz de riesgo por lapso, estrategia por perfil y fuentes de datos." },
 ];
 
 /* --------------------------------------------------------------------- app */
@@ -147,7 +145,7 @@ export default function App() {
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
   const [strategy, setStrategy] = useState(45);
   const [matrixHorizon, setMatrixHorizon] = useState("30d");
-  const [segment, setSegment] = useState("panel");
+  const [segment, setSegment] = useState("resumen");
 
   const goToSegment = (id: string) => {
     setView("app");
@@ -270,7 +268,7 @@ export default function App() {
     if (isConnected) {
       setWalletKitOpen(false);
       setView("app");
-      setSegment("panel");
+      setSegment("resumen");
       setTimeout(() => document.getElementById("workspace")?.scrollIntoView({ behavior: "smooth" }), 400);
     }
   }, [isConnected]);
@@ -355,7 +353,7 @@ export default function App() {
         chainName={deploy.name}
         onOpenWalletKit={() => setWalletKitOpen(true)}
         onOpenProfile={() => setProfileOpen(true)}
-        onEnterApp={() => openBlock("panel")}
+        onEnterApp={() => openBlock("resumen")}
         inApp={view === "app"}
       />
 
@@ -402,7 +400,7 @@ export default function App() {
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             {isConnected ? (
-              <button onClick={() => goToSegment("panel")} className="px-6 py-3.5 rounded-md font-bold text-sm bg-gradient-to-r from-cyan-600 to-[#4f6bff] text-white shadow-md transform hover:-translate-y-0.5 transition-all flex items-center gap-2">
+              <button onClick={() => goToSegment("resumen")} className="px-6 py-3.5 rounded-md font-bold text-sm bg-gradient-to-r from-cyan-600 to-[#4f6bff] text-white shadow-md transform hover:-translate-y-0.5 transition-all flex items-center gap-2">
                 <Gauge className="w-4 h-4" /> Entrar a la plataforma
               </button>
             ) : (
@@ -410,7 +408,7 @@ export default function App() {
                 <Wallet className="w-4 h-4" /> Conectar billetera
               </button>
             )}
-            <button onClick={() => openBlock("datos")} className="px-6 py-3.5 rounded-md font-bold text-sm backdrop-blur-xl border bg-white/75 border-slate-300 text-slate-800 transform hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <button onClick={() => openBlock("analisis")} className="px-6 py-3.5 rounded-md font-bold text-sm backdrop-blur-xl border bg-white/75 border-slate-300 text-slate-800 transform hover:-translate-y-0.5 transition-all flex items-center gap-2">
               <Radio className="w-4 h-4 text-cyan-700" /> Ver fuentes de datos
             </button>
           </div>
@@ -456,15 +454,15 @@ export default function App() {
               <Gauge className="w-3.5 h-3.5" /> LA PLATAFORMA
             </div>
             <h2 className="text-3xl sm:text-5xl font-light tracking-tight text-slate-900">
-              Cuatro segmentos,{" "}
+              Dos niveles,{" "}
               <b className="font-extrabold bg-gradient-to-r from-cyan-600 to-[#4f6bff] bg-clip-text text-transparent">una sesion</b>
             </h2>
             <p className="mt-3 text-sm max-w-2xl mx-auto text-slate-600">
-              Cada segmento explica que hace. Para usarlos necesitas vincular tu billetera: tu sesion
-              habilita las operaciones y queda registrada on-chain.
+              Nivel 1 para operar con control; nivel 2 para analizar y ver las fuentes. Para usarlos necesitas
+              vincular tu billetera: tu sesion habilita las operaciones y queda registrada on-chain.
             </p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             {SEGMENTS.map((s) => (
               <button key={s.id} onClick={() => openBlock(s.id)} className={`p-5 ${glass} text-left hover:-translate-y-0.5 transition-transform`}>
                 <div className="w-10 h-10 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-center text-cyan-700 mb-3">
@@ -535,7 +533,7 @@ export default function App() {
         <div id="workspace" className="scroll-mt-32" />
 
         {/* DASHBOARD */}
-        <section id="dashboard" className={`py-16 px-4 sm:px-6 max-w-6xl mx-auto scroll-mt-24 ${segment !== "panel" ? "hidden" : ""}`}>
+        <section id="dashboard" className={`py-16 px-4 sm:px-6 max-w-6xl mx-auto scroll-mt-24 ${segment !== "resumen" ? "hidden" : ""}`}>
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono mb-4">
               <Gauge className="w-3.5 h-3.5" /> PANEL DE CONTROL
@@ -736,7 +734,7 @@ export default function App() {
         </section>
 
         {/* MATRIZ DE DATOS */}
-        <section id="matriz" className={`py-16 px-4 sm:px-6 max-w-6xl mx-auto scroll-mt-24 ${segment !== "riesgo" ? "hidden" : ""}`}>
+        <section id="matriz" className={`py-16 px-4 sm:px-6 max-w-6xl mx-auto scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono mb-4"><LineChart className="w-3.5 h-3.5" /> MATRIZ DE RIESGO</div>
             <h2 className={`text-3xl sm:text-4xl font-light tracking-tight ${isDark ? "text-slate-100" : "text-slate-900"}`}>
@@ -789,7 +787,7 @@ export default function App() {
         </section>
 
         {/* ESTRATEGIA */}
-        <section id="estrategia" className={`py-16 px-4 sm:px-6 max-w-5xl mx-auto scroll-mt-24 ${segment !== "estrategia" ? "hidden" : ""}`}>
+        <section id="estrategia" className={`py-16 px-4 sm:px-6 max-w-5xl mx-auto scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono mb-4"><Sliders className="w-3.5 h-3.5" /> ESTRATEGIA</div>
             <h2 className={`text-3xl sm:text-4xl font-light tracking-tight ${isDark ? "text-slate-100" : "text-slate-900"}`}>
@@ -858,7 +856,7 @@ export default function App() {
         </section>
 
         {/* APIS */}
-        <section id="apis" className={`py-16 px-4 sm:px-6 max-w-6xl mx-auto scroll-mt-24 ${segment !== "datos" ? "hidden" : ""}`}>
+        <section id="apis" className={`py-16 px-4 sm:px-6 max-w-6xl mx-auto scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono mb-4"><Radio className="w-3.5 h-3.5" /> FUENTES Y SEGUIMIENTO</div>
             <h2 className={`text-3xl sm:text-4xl font-light tracking-tight ${isDark ? "text-slate-100" : "text-slate-900"}`}>
@@ -887,7 +885,7 @@ export default function App() {
         </section>
 
         {/* STEREUM / FONDEO */}
-        <section id="fondeo" className={`py-16 px-4 sm:px-6 max-w-5xl mx-auto scroll-mt-24 ${segment !== "datos" ? "hidden" : ""}`}>
+        <section id="fondeo" className={`py-16 px-4 sm:px-6 max-w-5xl mx-auto scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
           <div className={`p-6 sm:p-8 ${glass}`}>
             <div className="flex flex-wrap items-center gap-4 justify-between">
               <div className="flex items-center gap-3">
