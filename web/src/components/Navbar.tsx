@@ -30,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-40 backdrop-blur-xl transition-colors duration-300 px-4 sm:px-8 py-3 ${
-        isDark ? "bg-[#04090b]/80 border-b border-cyan-500/20" : "bg-white/80 border-b border-slate-200/80 shadow-sm"
+        isDark ? "bg-[#04090b]/80 border-b border-cyan-500/20" : "bg-white/[0.06] border-b border-white/10/80 shadow-sm"
       }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -38,9 +38,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           <RiskGuardLogo size="md" showText={true} />
         </button>
 
-        <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-md text-xs font-mono border border-slate-200 bg-slate-50 text-slate-600">
+        <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-md text-xs font-mono border border-white/10 bg-white/[0.04] text-slate-400">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500/100" />
             {chainName}
           </span>
           <span className="text-slate-300">|</span>
@@ -55,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-300 border cursor-pointer ${
                 isDark
                   ? "bg-white/[0.06] hover:bg-white/[0.12] text-white border-white/15"
-                  : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300"
+                  : "bg-white/[0.06] hover:bg-white/[0.08] text-slate-100 border-white/15"
               }`}
             >
               <Gauge className="w-3.5 h-3.5 text-cyan-400" />
@@ -64,7 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
           <div
             className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium ${
-              isDark ? "bg-cyan-950/60 border border-cyan-500/30 text-cyan-300" : "bg-cyan-50 border border-cyan-200 text-cyan-700"
+              isDark ? "bg-cyan-950/60 border border-cyan-500/30 text-cyan-300" : "bg-cyan-500/10 border border-cyan-500/30 text-cyan-300"
             }`}
           >
             <PlugZap className="w-3.5 h-3.5 text-cyan-500" />
@@ -78,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 border ${
                 isDark
                   ? "bg-white/[0.06] hover:bg-white/[0.12] border-white/15 text-white"
-                  : "bg-white hover:bg-slate-50 border-slate-300 text-slate-800"
+                  : "bg-white/[0.06] hover:bg-white/[0.04] border-white/15 text-slate-100"
               }`}
               title="Abrir perfil"
             >

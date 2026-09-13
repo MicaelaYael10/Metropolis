@@ -91,17 +91,20 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({ theme = "light", onSel
     renderer.domElement.style.pointerEvents = "auto";
     container.appendChild(renderer.domElement);
 
-    // --- LUCES ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.7 : 1.15);
+    // --- LUCES (blanca principal + rellenos suaves para que el logo se lea) ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.85 : 1.15);
     scene.add(ambientLight);
-    const cyanLight = new THREE.DirectionalLight(isDark ? 0x00e5ff : 0x2c93a8, 2.2);
+    const keyLight = new THREE.DirectionalLight(0xffffff, isDark ? 1.6 : 2.0);
+    keyLight.position.set(-6, 8, 9);
+    scene.add(keyLight);
+    const cyanLight = new THREE.DirectionalLight(isDark ? 0x2c93a8 : 0x2c93a8, 0.7);
     cyanLight.position.set(-8, 10, 5);
     scene.add(cyanLight);
-    const pinkLight = new THREE.DirectionalLight(isDark ? 0xec4899 : 0x83b7dc, 2.2);
+    const pinkLight = new THREE.DirectionalLight(isDark ? 0x83b7dc : 0x83b7dc, 0.6);
     pinkLight.position.set(8, -5, 5);
     scene.add(pinkLight);
-    const pointLight = new THREE.PointLight(isDark ? 0x8b5cf6 : 0x4f6bff, 1.2, 30);
-    pointLight.position.set(0, 0, 8);
+    const pointLight = new THREE.PointLight(0xffffff, isDark ? 0.5 : 0.35, 30);
+    pointLight.position.set(0, 0, 9);
     scene.add(pointLight);
 
     // --- PARTICULAS ---

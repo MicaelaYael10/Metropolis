@@ -162,22 +162,23 @@ body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
-  /* Tema claro: base "plomo" muy suavizada con un halo frio sutil. */
+  /* Tema oscuro profundo con acentos blancos. */
   background:
-    radial-gradient(1200px 620px at 50% -8%, #f7f9fb 0%, #eaeef3 46%, #dfe5ec 100%);
+    radial-gradient(1100px 560px at 50% -10%, #101722 0%, #070a0f 45%, #04060a 100%);
   background-attachment: fixed;
-  color: #14212a;
+  color: #eef3f8;
 }
 
-/* Acento electrico para el tema claro. */
 :root {
-  --rg-electric: #4f6bff;
-  --rg-electric-soft: #8ea2ff;
-  --rg-plomo-900: #0f1a22;
-  --rg-plomo-700: #33424d;
-  --rg-plomo-500: #5a6b78;
-  --rg-plomo-300: #9aa9b6;
-  --rg-plomo-100: #e6ebf0;
+  --rg-electric: #6f86ff;
+  --rg-electric-soft: #a9b7ff;
+  --rg-ink-900: #04060a;
+  --rg-ink-800: #070a0f;
+  --rg-ink-700: #0c1219;
+  --rg-line: rgba(255, 255, 255, 0.08);
+  --rg-line-strong: rgba(255, 255, 255, 0.16);
+  --rg-text: #eef3f8;
+  --rg-text-dim: #9fb0c0;
 }
 
 ::selection {

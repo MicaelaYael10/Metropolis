@@ -85,32 +85,32 @@ export const StochasticRiskSection: React.FC<StochasticRiskSectionProps> = ({ th
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="w-1 h-4 bg-cyan-600" />
-            <span className="text-xs font-mono uppercase tracking-wider text-slate-500">Riesgo estocastico - Monte Carlo</span>
+            <span className="text-xs font-mono uppercase tracking-wider text-slate-400">Riesgo estocastico - Monte Carlo</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
             Bloques de simulacion
           </h2>
-          <p className="mt-2 text-sm text-slate-600 max-w-2xl">
+          <p className="mt-2 text-sm text-slate-400 max-w-2xl">
             Cada celda es un estado simulado del riesgo con el umbral de politica <b>{threshold}</b>.
             La grilla se lee como un tablero: mas rojo, mas probable la brecha.
           </p>
         </div>
         <button
           onClick={() => setRunning((v) => !v)}
-          className="px-4 py-2 rounded-md text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-cyan-600 transition-colors inline-flex items-center gap-1.5"
+          className="px-4 py-2 rounded-md text-xs font-bold border border-white/15 bg-[#0b1017]/85 text-slate-200 hover:border-cyan-600 transition-colors inline-flex items-center gap-1.5"
         >
           {running ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
           {running ? "En vivo" : "Reanudar"}
         </button>
       </div>
 
-      <div className="rounded-md border border-slate-200 bg-white/80 backdrop-blur-xl p-4 sm:p-5 shadow-[0_6px_24px_rgba(15,33,45,0.06)]">
+      <div className="rounded-md border border-white/10 bg-[#0b1017]/85 backdrop-blur-xl p-4 sm:p-5 shadow-[0_6px_24px_rgba(15,33,45,0.06)]">
         {/* Grilla tipo sudoku */}
         <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))` }}>
           {grid.cells.map((b, i) => (
             <div
               key={i}
-              className="aspect-square border border-white/60"
+              className="aspect-square border border-black/40"
               style={{ background: COLORS[b] }}
               title={LABELS[b]}
             />
@@ -118,26 +118,26 @@ export const StochasticRiskSection: React.FC<StochasticRiskSectionProps> = ({ th
         </div>
 
         {/* Leyenda + reparto */}
-        <div className="mt-4 flex flex-wrap items-center gap-4 text-[11px] text-slate-600">
+        <div className="mt-4 flex flex-wrap items-center gap-4 text-[11px] text-slate-400">
           {([0, 1, 2, 3] as Bucket[]).map((b) => (
             <span key={b} className="inline-flex items-center gap-1.5">
-              <span className="w-3 h-3 border border-slate-300 inline-block" style={{ background: COLORS[b] }} />
+              <span className="w-3 h-3 border border-white/15 inline-block" style={{ background: COLORS[b] }} />
               {LABELS[b]} ({counts[b]})
             </span>
           ))}
-          <span className="ml-auto font-mono text-slate-500">semilla #{seed}</span>
+          <span className="ml-auto font-mono text-slate-400">semilla #{seed}</span>
         </div>
 
         {/* Capas: tiempo real y ciclo anual */}
         <div className="grid lg:grid-cols-2 gap-4 mt-6">
-          <div className="rounded-md border border-slate-200 p-4">
+          <div className="rounded-md border border-white/10 p-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-700 inline-flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-cyan-700" /> Capa tiempo real (24 h)
+              <span className="text-xs font-semibold text-slate-200 inline-flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-cyan-300" /> Capa tiempo real (24 h)
               </span>
               <button
                 onClick={() => setRealtime((v) => !v)}
-                className={`px-2 py-1 rounded-sm text-[10px] font-bold border ${realtime ? "border-cyan-600 text-cyan-700 bg-cyan-50" : "border-slate-300 text-slate-500"}`}
+                className={`px-2 py-1 rounded-sm text-[10px] font-bold border ${realtime ? "border-cyan-600 text-cyan-300 bg-cyan-500/10" : "border-white/15 text-slate-400"}`}
               >
                 {realtime ? "activa" : "pausada"}
               </button>
@@ -152,34 +152,34 @@ export const StochasticRiskSection: React.FC<StochasticRiskSectionProps> = ({ th
                 />
               ))}
             </div>
-            <p className="mt-2 text-[11px] text-slate-500">
+            <p className="mt-2 text-[11px] text-slate-400">
               Variacion inmediata del puntaje (retiros, fallos de transaccion, TVL).
             </p>
           </div>
 
-          <div className="rounded-md border border-slate-200 p-4">
-            <div className="flex items-center gap-1.5 mb-3 text-xs font-semibold text-slate-700">
-              <CalendarDays className="w-3.5 h-3.5 text-amber-600" /> Capa ciclo anual (12 meses)
+          <div className="rounded-md border border-white/10 p-4">
+            <div className="flex items-center gap-1.5 mb-3 text-xs font-semibold text-slate-200">
+              <CalendarDays className="w-3.5 h-3.5 text-amber-400" /> Capa ciclo anual (12 meses)
             </div>
             <div className="grid grid-cols-12 gap-[3px]">
               {months.map((v, i) => (
                 <div
                   key={i}
-                  className="h-16 border border-white/70"
+                  className="h-16 border border-black/40"
                   style={{ background: v > 0.75 ? COLORS[3] : v > 0.55 ? COLORS[2] : v > 0.35 ? COLORS[1] : COLORS[0] }}
                   title={`mes ${i + 1}: ${(v * 100).toFixed(0)}%`}
                 />
               ))}
             </div>
-            <p className="mt-2 text-[11px] text-slate-500">
+            <p className="mt-2 text-[11px] text-slate-400">
               Estacionalidad de tasas y frecuencia historica de incidentes por mes.
             </p>
           </div>
         </div>
       </div>
 
-      <p className="mt-3 text-[11px] text-slate-500 inline-flex items-center gap-1.5">
-        <Activity className="w-3.5 h-3.5 text-cyan-700" />
+      <p className="mt-3 text-[11px] text-slate-400 inline-flex items-center gap-1.5">
+        <Activity className="w-3.5 h-3.5 text-cyan-300" />
         Misma matematica determinista del motor (`engine/montecarlo.js`); no predice precios.
       </p>
     </section>
