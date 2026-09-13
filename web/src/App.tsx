@@ -387,7 +387,20 @@ export default function App() {
         {view === "landing" && (
           <>
         {/* HERO */}
-        <section className="min-h-[86vh] flex flex-col justify-center items-center text-center px-4 sm:px-6">
+        <section className="relative overflow-hidden min-h-[86vh] flex flex-col justify-center items-center text-center px-4 sm:px-6">
+          <div className="pointer-events-none absolute inset-0 -z-10">
+            <div className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-[680px] h-[440px] rounded-full bg-[#4f6bff]/10 blur-3xl" />
+            <div
+              className="absolute inset-0 opacity-40"
+              style={{
+                backgroundImage:
+                  "linear-gradient(#dde5ec 1px, transparent 1px), linear-gradient(90deg, #dde5ec 1px, transparent 1px)",
+                backgroundSize: "48px 48px",
+                maskImage: "radial-gradient(60% 50% at 50% 38%, black, transparent)",
+                WebkitMaskImage: "radial-gradient(60% 50% at 50% 38%, black, transparent)",
+              }}
+            />
+          </div>
           <h1 className="text-5xl sm:text-7xl md:text-8xl font-extrabold tracking-tight text-slate-900">
             Risk
             <span className="bg-gradient-to-r from-cyan-600 via-[#4f6bff] to-purple-500 bg-clip-text text-transparent">Guard</span>
@@ -413,10 +426,20 @@ export default function App() {
             </button>
           </div>
 
-          <a href="#workspace" className={`absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center text-xs font-mono ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-            <span>SCROLL</span>
-            <ChevronDown className="w-4 h-4 animate-bounce mt-1 text-cyan-500" />
-          </a>
+          {/* Metricas clave (estilo panel de datos) */}
+          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-3xl">
+            {[
+              { v: String(protocols.length || 5), l: "protocolos en registro" },
+              { v: String(engine?.dataset.snapshots ?? 1474), l: "snapshots del dataset" },
+              { v: String(engine?.dataset.onchainRows ?? 18), l: "con senales on-chain" },
+              { v: "3", l: "contratos verificados" },
+            ].map((k) => (
+              <div key={k.l} className={`p-4 ${glass} text-left`}>
+                <div className="text-2xl font-extrabold font-['Space_Grotesk'] text-slate-900">{k.v}</div>
+                <div className="text-[10px] uppercase tracking-wider text-slate-500">{k.l}</div>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* COMO FUNCIONA */}
@@ -967,9 +990,6 @@ export default function App() {
                 </li>
               </ul>
             </div>
-          </div>
-          <div className="border-t border-slate-200 py-4 text-center text-[10px] text-slate-500">
-            ETH Bolivia Buildathon 2026 - Bounty Avalanche. El agente propone, el contrato dispone.
           </div>
         </footer>
       </main>

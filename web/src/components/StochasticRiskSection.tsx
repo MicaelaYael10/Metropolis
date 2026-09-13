@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { Activity, CalendarDays, Zap } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Activity, CalendarDays, Pause, Play, Zap } from "lucide-react";
 
 /**
  * Riesgo estocastico representado en BLOQUES rectangulares:
@@ -41,6 +41,14 @@ interface StochasticRiskSectionProps {
 export const StochasticRiskSection: React.FC<StochasticRiskSectionProps> = ({ threshold = 55 }) => {
   const [seed, setSeed] = useState(42);
   const [realtime, setRealtime] = useState(true);
+  const [running, setRunning] = useState(true);
+
+  // Auto-simulacion: corre sola, no hace falta pulsar nada.
+  useEffect(() => {
+    if (!running) return;
+    const id = setInterval(() => setSeed((s) => s + 1), 2600);
+    return () => clearInterval(id);
+  }, [running]);
 
   const grid = useMemo(() => {
     const rnd = mulberry32(seed);
@@ -88,10 +96,11 @@ export const StochasticRiskSection: React.FC<StochasticRiskSectionProps> = ({ th
           </p>
         </div>
         <button
-          onClick={() => setSeed((s) => s + 1)}
-          className="px-4 py-2 rounded-md text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-cyan-600 transition-colors"
+          onClick={() => setRunning((v) => !v)}
+          className="px-4 py-2 rounded-md text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:border-cyan-600 transition-colors inline-flex items-center gap-1.5"
         >
-          Re-simular
+          {running ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+          {running ? "En vivo" : "Reanudar"}
         </button>
       </div>
 
