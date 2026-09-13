@@ -16,3 +16,6 @@ declare module "wagmi" {
     config: typeof wagmiConfig;
   }
 }
+
+/** Marca de sesion persistida por la app (no por el conector). */
+export const SESSION_KEY = "riskguard.session";

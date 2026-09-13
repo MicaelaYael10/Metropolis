@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   useAccount,
   useConnect,
@@ -10,6 +10,7 @@ import {
   useReadContracts,
   useWriteContract,
   useWaitForTransactionReceipt,
+  useReconnect,
 } from "wagmi";
 import type { Connector } from "wagmi";
 import { keccak256, toHex } from "viem";
@@ -33,6 +34,7 @@ import {
   Sparkles,
   Landmark,
   ExternalLink,
+  LogOut,
 } from "lucide-react";
 
 import { Navbar } from "./components/Navbar";
@@ -42,6 +44,7 @@ import SplashScreen from "./components/SplashScreen";
 import { StochasticRiskSection } from "./components/StochasticRiskSection";
 import { WalletsSection } from "./components/WalletsSection";
 import type { WalletState } from "./types";
+import { SESSION_KEY } from "./wagmi";
 import { riskGuardAbi, registryAbi, agentLogAbi, asTuple } from "./abi";
 import { deploymentFor, REASON_CODES, BAND_NAMES, SUPPORTED_CHAIN_IDS } from "./config";
 import { simulate, TIMEFRAMES } from "./mc";
@@ -127,6 +130,7 @@ export default function App() {
   const connectors = useConnectors();
   const { connect, isPending: isConnecting } = useConnect();
   const { disconnect } = useDisconnect();
+  const { reconnect } = useReconnect();
   const { switchChain } = useSwitchChain();
   const deploy = deploymentFor(chainId);
 
@@ -292,15 +296,33 @@ export default function App() {
     if (hash) setTxHash(hash);
   }, [hash]);
 
-  // Al conectar, llevar al panel automaticamente.
+  // Restaurar sesion solo si el usuario NO la cerro explicitamente.
   useEffect(() => {
+    if (localStorage.getItem(SESSION_KEY)) reconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Transiciones de sesion: al conectar se registra; al cerrar se limpia y vuelve a la landing.
+  const prevConnected = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (prevConnected.current === null) {
+      prevConnected.current = isConnected;
+      return;
+    }
+    if (prevConnected.current === isConnected) return;
+    prevConnected.current = isConnected;
     if (isConnected) {
+      localStorage.setItem(SESSION_KEY, address ?? "1");
       setWalletKitOpen(false);
       setView("app");
       setSegment("resumen");
       setTimeout(() => document.getElementById("workspace")?.scrollIntoView({ behavior: "smooth" }), 400);
+    } else {
+      localStorage.removeItem(SESSION_KEY);
+      setView("landing");
+      setProfileOpen(false);
     }
-  }, [isConnected]);
+  }, [isConnected, address]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -491,7 +513,7 @@ export default function App() {
         </section>
 
         {/* LA PLATAFORMA - bloques de explicacion (requieren sesion) */}
-        <section className="py-16 px-4 sm:px-6 max-w-5xl mx-auto">
+        <section className="py-8 max-w-none">
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm bg-[#4f6bff]/10 border border-[#4f6bff]/30 text-[#4f6bff] text-xs font-mono mb-4">
               <Gauge className="w-3.5 h-3.5" /> LA PLATAFORMA
@@ -551,32 +573,63 @@ export default function App() {
 
         {view === "app" && isConnected && (
           <>
-        {/* NAVEGACION POR SEGMENTOS */}
-        <div className="sticky top-[64px] z-30 px-4 sm:px-6">
-          <div className={`max-w-3xl mx-auto ${glass} p-1.5 flex items-center justify-center gap-1`}>
-            {SEGMENTS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => goToSegment(s.id)}
-                className={`flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all ${
-                  segment === s.id
-                    ? "bg-gradient-to-r from-cyan-600 to-purple-600 text-white shadow-lg"
-                    : isDark
-                      ? "text-slate-300 hover:bg-white/[0.06]"
-                      : "text-slate-400 hover:bg-white/[0.06]"
-                }`}
-              >
-                <s.icon className="w-4 h-4" />
-                <span>{s.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* SIDEBOARD + CONTENIDO */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 grid lg:grid-cols-[264px_minmax(0,1fr)] gap-6 items-start">
+          <aside className="lg:sticky lg:top-24 z-30">
+            <div className={`p-4 ${glass}`}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-md bg-gradient-to-br from-cyan-500 to-[#6f86ff] grid place-items-center text-sm font-bold text-white">
+                  {address ? address.slice(2, 4).toUpperCase() : "??"}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-mono text-xs text-slate-200 truncate">
+                    {address ? `${address.slice(0, 8)}...${address.slice(-6)}` : "-"}
+                  </div>
+                  <div className="text-[10px] text-slate-400">{deploy.name}</div>
+                </div>
+              </div>
 
-        <div id="workspace" className="scroll-mt-32" />
+              <nav className="mt-4 space-y-1">
+                {SEGMENTS.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => goToSegment(s.id)}
+                    className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-semibold transition-all ${
+                      segment === s.id
+                        ? "bg-gradient-to-r from-cyan-600 to-[#6f86ff] text-white"
+                        : "text-slate-300 hover:bg-white/[0.06]"
+                    }`}
+                  >
+                    <s.icon className="w-4 h-4" /> {s.label}
+                  </button>
+                ))}
+              </nav>
+
+              <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
+                <button
+                  onClick={() => setProfileOpen(true)}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs font-semibold text-slate-300 hover:bg-white/[0.06]"
+                >
+                  <Wallet className="w-3.5 h-3.5" /> Ver perfil
+                </button>
+                <button
+                  onClick={() => disconnect()}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs font-semibold text-rose-300 hover:bg-rose-500/10"
+                >
+                  <LogOut className="w-3.5 h-3.5" /> Cerrar sesion
+                </button>
+                <div className="px-3 pt-2 text-[10px] text-slate-500 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Contratos verificados
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <div className="min-w-0">
+            <div id="workspace" className="scroll-mt-32" />
 
         {/* DASHBOARD */}
-        <section id="dashboard" className={`py-16 px-4 sm:px-6 max-w-6xl mx-auto scroll-mt-24 ${segment !== "resumen" ? "hidden" : ""}`}>
+        <section id="dashboard" className={`py-8 max-w-none scroll-mt-24 ${segment !== "resumen" ? "hidden" : ""}`}>
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-1 h-4 bg-cyan-400" />
@@ -791,7 +844,7 @@ export default function App() {
         </section>
 
         {/* MATRIZ DE DATOS */}
-        <section id="matriz" className={`py-16 px-4 sm:px-6 max-w-6xl mx-auto scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
+        <section id="matriz" className={`py-8 max-w-none scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/100/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono mb-4"><LineChart className="w-3.5 h-3.5" /> MATRIZ DE RIESGO</div>
             <h2 className={`text-3xl sm:text-4xl font-light tracking-tight ${isDark ? "text-slate-100" : "text-white"}`}>
@@ -844,7 +897,7 @@ export default function App() {
         </section>
 
         {/* ESTRATEGIA */}
-        <section id="estrategia" className={`py-16 px-4 sm:px-6 max-w-5xl mx-auto scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
+        <section id="estrategia" className={`py-8 max-w-none scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono mb-4"><Sliders className="w-3.5 h-3.5" /> ESTRATEGIA</div>
             <h2 className={`text-3xl sm:text-4xl font-light tracking-tight ${isDark ? "text-slate-100" : "text-white"}`}>
@@ -913,7 +966,7 @@ export default function App() {
         </section>
 
         {/* APIS */}
-        <section id="apis" className={`py-16 px-4 sm:px-6 max-w-6xl mx-auto scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
+        <section id="apis" className={`py-8 max-w-none scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/100/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono mb-4"><Radio className="w-3.5 h-3.5" /> FUENTES Y SEGUIMIENTO</div>
             <h2 className={`text-3xl sm:text-4xl font-light tracking-tight ${isDark ? "text-slate-100" : "text-white"}`}>
@@ -942,7 +995,7 @@ export default function App() {
         </section>
 
         {/* STEREUM / FONDEO */}
-        <section id="fondeo" className={`py-16 px-4 sm:px-6 max-w-5xl mx-auto scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
+        <section id="fondeo" className={`py-8 max-w-none scroll-mt-24 ${segment !== "analisis" ? "hidden" : ""}`}>
           <div className={`p-6 sm:p-8 ${glass}`}>
             <div className="flex flex-wrap items-center gap-4 justify-between">
               <div className="flex items-center gap-3">
@@ -998,6 +1051,8 @@ export default function App() {
           </div>
         </section>
 
+          </div>
+        </div>
           </>
         )}
 
