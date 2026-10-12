@@ -1,0 +1,737 @@
+{
+  "commands": {
+    "riskguard:check": {
+      "aliases": [],
+      "args": {
+        "protocol": {
+          "description": "Protocol/vault address to evaluate",
+          "name": "protocol",
+          "required": true
+        },
+        "amount": {
+          "description": "Amount to evaluate (token units, e.g. 100)",
+          "name": "amount",
+          "required": true
+        }
+      },
+      "description": "Dry-run the RiskGuard policy for an operation without sending any transaction.",
+      "examples": [
+        "<%= config.bin %> riskguard check 0xVault... 100",
+        "<%= config.bin %> riskguard check --protocol 0xVault... --amount 100 --json"
+      ],
+      "flags": {
+        "format": {
+          "char": "f",
+          "description": "Output format: text | json | toon (defaults to text in TTY, json when piped)",
+          "name": "format",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "options": [
+            "text",
+            "json",
+            "toon"
+          ],
+          "type": "option"
+        },
+        "json": {
+          "description": "Shorthand for --format=json",
+          "name": "json",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "toon": {
+          "description": "Shorthand for --format=toon",
+          "name": "toon",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "verbose": {
+          "char": "v",
+          "description": "Show debug logs on stderr. Use this for troubleshooting",
+          "name": "verbose",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "protocol": {
+          "description": "Protocol/vault address to evaluate",
+          "name": "protocol",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "amount": {
+          "description": "Amount to evaluate (token units, e.g. 100)",
+          "name": "amount",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "riskguard:check",
+      "pluginAlias": "mm-plugin-riskguard",
+      "pluginName": "mm-plugin-riskguard",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "requiresAuth": true,
+      "requiresInit": true,
+      "requiresFees": false,
+      "byokPasswordFlags": {
+        "password": {
+          "description": "Password to unlock the BYOK mnemonic (BYOK mode only)",
+          "env": "MM_PASSWORD",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "walletTimeoutFlags": {
+        "wallet-timeout": {
+          "description": "Seconds to wait per wallet job (MFA/signing), max 600; overrides config walletTimeoutSeconds",
+          "min": 1,
+          "max": 600,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "STRUCTURED_FORMATS": {},
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "commands",
+        "riskguard",
+        "check.js"
+      ]
+    },
+    "riskguard:dca": {
+      "aliases": [],
+      "args": {
+        "vault": {
+          "description": "Vault (protocol) address to supply",
+          "name": "vault",
+          "required": true
+        },
+        "total": {
+          "description": "Total amount to split across tranches (token units)",
+          "name": "total",
+          "required": true
+        }
+      },
+      "description": "Supply a total amount to a vault in equal tranches. Aborts before any risky tranche.",
+      "examples": [
+        "<%= config.bin %> riskguard dca 0xVault... 300 --tranches 3 --interval 30"
+      ],
+      "flags": {
+        "format": {
+          "char": "f",
+          "description": "Output format: text | json | toon (defaults to text in TTY, json when piped)",
+          "name": "format",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "options": [
+            "text",
+            "json",
+            "toon"
+          ],
+          "type": "option"
+        },
+        "json": {
+          "description": "Shorthand for --format=json",
+          "name": "json",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "toon": {
+          "description": "Shorthand for --format=toon",
+          "name": "toon",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "verbose": {
+          "char": "v",
+          "description": "Show debug logs on stderr. Use this for troubleshooting",
+          "name": "verbose",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "vault": {
+          "description": "Vault (protocol) address to supply",
+          "name": "vault",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "total": {
+          "description": "Total amount to split across tranches (token units)",
+          "name": "total",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "tranches": {
+          "description": "Number of tranches (1..20)",
+          "name": "tranches",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "interval": {
+          "description": "Seconds to wait between tranches (0..86400)",
+          "name": "interval",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "riskguard:dca",
+      "pluginAlias": "mm-plugin-riskguard",
+      "pluginName": "mm-plugin-riskguard",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "requiresAuth": true,
+      "requiresInit": true,
+      "requiresFees": false,
+      "byokPasswordFlags": {
+        "password": {
+          "description": "Password to unlock the BYOK mnemonic (BYOK mode only)",
+          "env": "MM_PASSWORD",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "walletTimeoutFlags": {
+        "wallet-timeout": {
+          "description": "Seconds to wait per wallet job (MFA/signing), max 600; overrides config walletTimeoutSeconds",
+          "min": 1,
+          "max": 600,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "STRUCTURED_FORMATS": {},
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "commands",
+        "riskguard",
+        "dca.js"
+      ]
+    },
+    "riskguard:log": {
+      "aliases": [],
+      "args": {},
+      "description": "Show this wallet's on-chain RiskGuard decision log, including blocked operations.",
+      "examples": [
+        "<%= config.bin %> riskguard log",
+        "<%= config.bin %> riskguard log --limit 25 --json"
+      ],
+      "flags": {
+        "format": {
+          "char": "f",
+          "description": "Output format: text | json | toon (defaults to text in TTY, json when piped)",
+          "name": "format",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "options": [
+            "text",
+            "json",
+            "toon"
+          ],
+          "type": "option"
+        },
+        "json": {
+          "description": "Shorthand for --format=json",
+          "name": "json",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "toon": {
+          "description": "Shorthand for --format=toon",
+          "name": "toon",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "verbose": {
+          "char": "v",
+          "description": "Show debug logs on stderr. Use this for troubleshooting",
+          "name": "verbose",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "limit": {
+          "description": "How many recent decisions to show (1..100)",
+          "name": "limit",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "riskguard:log",
+      "pluginAlias": "mm-plugin-riskguard",
+      "pluginName": "mm-plugin-riskguard",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "requiresAuth": true,
+      "requiresInit": true,
+      "requiresFees": false,
+      "byokPasswordFlags": {
+        "password": {
+          "description": "Password to unlock the BYOK mnemonic (BYOK mode only)",
+          "env": "MM_PASSWORD",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "walletTimeoutFlags": {
+        "wallet-timeout": {
+          "description": "Seconds to wait per wallet job (MFA/signing), max 600; overrides config walletTimeoutSeconds",
+          "min": 1,
+          "max": 600,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "STRUCTURED_FORMATS": {},
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "commands",
+        "riskguard",
+        "log.js"
+      ]
+    },
+    "riskguard:policy": {
+      "aliases": [],
+      "args": {},
+      "description": "Read the caller's RiskGuard policy, or write a new one with --set.",
+      "examples": [
+        "<%= config.bin %> riskguard policy",
+        "<%= config.bin %> riskguard policy --set --max-risk-score 40 --max-protocols 3 --max-per-protocol 500 --max-amount-per-op 100"
+      ],
+      "flags": {
+        "format": {
+          "char": "f",
+          "description": "Output format: text | json | toon (defaults to text in TTY, json when piped)",
+          "name": "format",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "options": [
+            "text",
+            "json",
+            "toon"
+          ],
+          "type": "option"
+        },
+        "json": {
+          "description": "Shorthand for --format=json",
+          "name": "json",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "toon": {
+          "description": "Shorthand for --format=toon",
+          "name": "toon",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "verbose": {
+          "char": "v",
+          "description": "Show debug logs on stderr. Use this for troubleshooting",
+          "name": "verbose",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "set": {
+          "description": "Write a new risk policy on-chain",
+          "name": "set",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "max-risk-score": {
+          "description": "Maximum protocol risk score (0..100)",
+          "name": "max-risk-score",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "max-protocols": {
+          "description": "Maximum distinct protocols (1..50)",
+          "name": "max-protocols",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "max-per-protocol": {
+          "description": "Exposure cap per protocol (token units)",
+          "name": "max-per-protocol",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "max-amount-per-op": {
+          "description": "Maximum amount per operation (token units)",
+          "name": "max-amount-per-op",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "riskguard:policy",
+      "pluginAlias": "mm-plugin-riskguard",
+      "pluginName": "mm-plugin-riskguard",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "requiresAuth": true,
+      "requiresInit": true,
+      "requiresFees": false,
+      "byokPasswordFlags": {
+        "password": {
+          "description": "Password to unlock the BYOK mnemonic (BYOK mode only)",
+          "env": "MM_PASSWORD",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "walletTimeoutFlags": {
+        "wallet-timeout": {
+          "description": "Seconds to wait per wallet job (MFA/signing), max 600; overrides config walletTimeoutSeconds",
+          "min": 1,
+          "max": 600,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "STRUCTURED_FORMATS": {},
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "commands",
+        "riskguard",
+        "policy.js"
+      ]
+    },
+    "riskguard:protocols": {
+      "aliases": [],
+      "args": {},
+      "description": "List DeFi protocols registered on-chain with their RiskGuard risk scores.",
+      "examples": [
+        "<%= config.bin %> riskguard protocols",
+        "<%= config.bin %> riskguard protocols --json"
+      ],
+      "flags": {
+        "format": {
+          "char": "f",
+          "description": "Output format: text | json | toon (defaults to text in TTY, json when piped)",
+          "name": "format",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "options": [
+            "text",
+            "json",
+            "toon"
+          ],
+          "type": "option"
+        },
+        "json": {
+          "description": "Shorthand for --format=json",
+          "name": "json",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "toon": {
+          "description": "Shorthand for --format=toon",
+          "name": "toon",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "verbose": {
+          "char": "v",
+          "description": "Show debug logs on stderr. Use this for troubleshooting",
+          "name": "verbose",
+          "allowNo": false,
+          "type": "boolean"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "riskguard:protocols",
+      "pluginAlias": "mm-plugin-riskguard",
+      "pluginName": "mm-plugin-riskguard",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "requiresAuth": true,
+      "requiresInit": true,
+      "requiresFees": false,
+      "byokPasswordFlags": {
+        "password": {
+          "description": "Password to unlock the BYOK mnemonic (BYOK mode only)",
+          "env": "MM_PASSWORD",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "walletTimeoutFlags": {
+        "wallet-timeout": {
+          "description": "Seconds to wait per wallet job (MFA/signing), max 600; overrides config walletTimeoutSeconds",
+          "min": 1,
+          "max": 600,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "STRUCTURED_FORMATS": {},
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "commands",
+        "riskguard",
+        "protocols.js"
+      ]
+    },
+    "riskguard:rebalance": {
+      "aliases": [],
+      "args": {
+        "from": {
+          "description": "Vault to withdraw from",
+          "name": "from",
+          "required": true
+        },
+        "to": {
+          "description": "Vault to supply into",
+          "name": "to",
+          "required": true
+        },
+        "amount": {
+          "description": "Asset amount to move (token units)",
+          "name": "amount",
+          "required": true
+        }
+      },
+      "description": "Withdraw from one vault and supply into another, gated by the RiskGuard policy for the destination.",
+      "examples": [
+        "<%= config.bin %> riskguard rebalance 0xFrom... 0xTo... 50"
+      ],
+      "flags": {
+        "format": {
+          "char": "f",
+          "description": "Output format: text | json | toon (defaults to text in TTY, json when piped)",
+          "name": "format",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "options": [
+            "text",
+            "json",
+            "toon"
+          ],
+          "type": "option"
+        },
+        "json": {
+          "description": "Shorthand for --format=json",
+          "name": "json",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "toon": {
+          "description": "Shorthand for --format=toon",
+          "name": "toon",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "verbose": {
+          "char": "v",
+          "description": "Show debug logs on stderr. Use this for troubleshooting",
+          "name": "verbose",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "from": {
+          "description": "Vault to withdraw from",
+          "name": "from",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "to": {
+          "description": "Vault to supply into",
+          "name": "to",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "amount": {
+          "description": "Asset amount to move (token units)",
+          "name": "amount",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "riskguard:rebalance",
+      "pluginAlias": "mm-plugin-riskguard",
+      "pluginName": "mm-plugin-riskguard",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "requiresAuth": true,
+      "requiresInit": true,
+      "requiresFees": false,
+      "byokPasswordFlags": {
+        "password": {
+          "description": "Password to unlock the BYOK mnemonic (BYOK mode only)",
+          "env": "MM_PASSWORD",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "walletTimeoutFlags": {
+        "wallet-timeout": {
+          "description": "Seconds to wait per wallet job (MFA/signing), max 600; overrides config walletTimeoutSeconds",
+          "min": 1,
+          "max": 600,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "STRUCTURED_FORMATS": {},
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "commands",
+        "riskguard",
+        "rebalance.js"
+      ]
+    },
+    "riskguard:supply": {
+      "aliases": [],
+      "args": {
+        "vault": {
+          "description": "Vault (protocol) address to supply",
+          "name": "vault",
+          "required": true
+        },
+        "amount": {
+          "description": "Amount to supply (token units, e.g. 100)",
+          "name": "amount",
+          "required": true
+        }
+      },
+      "description": "Supply tokens to a vault only if it passes the on-chain RiskGuard policy, otherwise log the rejection.",
+      "examples": [
+        "<%= config.bin %> riskguard supply 0xVault... 100",
+        "<%= config.bin %> riskguard supply --vault 0xVault... --amount 100 --json"
+      ],
+      "flags": {
+        "format": {
+          "char": "f",
+          "description": "Output format: text | json | toon (defaults to text in TTY, json when piped)",
+          "name": "format",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "options": [
+            "text",
+            "json",
+            "toon"
+          ],
+          "type": "option"
+        },
+        "json": {
+          "description": "Shorthand for --format=json",
+          "name": "json",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "toon": {
+          "description": "Shorthand for --format=toon",
+          "name": "toon",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "verbose": {
+          "char": "v",
+          "description": "Show debug logs on stderr. Use this for troubleshooting",
+          "name": "verbose",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "vault": {
+          "description": "Vault (protocol) address to supply",
+          "name": "vault",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "amount": {
+          "description": "Amount to supply (token units, e.g. 100)",
+          "name": "amount",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "riskguard:supply",
+      "pluginAlias": "mm-plugin-riskguard",
+      "pluginName": "mm-plugin-riskguard",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false,
+      "requiresAuth": true,
+      "requiresInit": true,
+      "requiresFees": false,
+      "byokPasswordFlags": {
+        "password": {
+          "description": "Password to unlock the BYOK mnemonic (BYOK mode only)",
+          "env": "MM_PASSWORD",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "walletTimeoutFlags": {
+        "wallet-timeout": {
+          "description": "Seconds to wait per wallet job (MFA/signing), max 600; overrides config walletTimeoutSeconds",
+          "min": 1,
+          "max": 600,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "STRUCTURED_FORMATS": {},
+      "isESM": true,
+      "relativePath": [
+        "dist",
+        "commands",
+        "riskguard",
+        "supply.js"
+      ]
+    }
+  },
+  "version": "0.1.0"
+}
