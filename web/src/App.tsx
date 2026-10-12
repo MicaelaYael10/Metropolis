@@ -450,7 +450,7 @@ export default function App() {
 
           <p className="mt-5 text-base sm:text-lg md:text-xl max-w-2xl text-slate-400">
             Agente de gestion de riesgo para rendimiento pasivo en DeFi. En que protocolo ya existente es
-            seguro colocar tus activos ahora: <b>el agente propone, el contrato de Avalanche dispone</b>.
+            seguro colocar tus activos ahora: <b>el agente propone, el contrato en Monad dispone</b>.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
@@ -474,7 +474,7 @@ export default function App() {
               { v: String(protocols.length || 5), l: "protocolos en registro" },
               { v: String(engine?.dataset.snapshots ?? 1474), l: "snapshots del dataset" },
               { v: String(engine?.dataset.onchainRows ?? 18), l: "con senales on-chain" },
-              { v: "3", l: "contratos verificados" },
+              { v: "3", l: "contratos desplegados" },
             ].map((k) => (
               <div key={k.l} className={`p-4 ${glass} text-left`}>
                 <div className="text-2xl font-extrabold font-['Space_Grotesk'] text-white">{k.v}</div>
@@ -492,16 +492,14 @@ export default function App() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {[
-              { kind: "logo", title: "Avalanche C-Chain", text: "Red donde viven los contratos y el registro." },
+              { icon: Landmark, title: "Monad Testnet", text: "Red donde viven los contratos y el registro." },
               { icon: ShieldCheck, title: "RiskGuard", text: "Verifica la politica y revierte la operacion que la viole." },
               { icon: Database, title: "ProtocolRegistry", text: "El puntaje se lee on-chain: el agente no puede mentir." },
               { icon: Layers, title: "AgentLog", text: "Registra cada decision, aprobada o bloqueada." },
-            ].map((f: { kind?: string; icon?: any; title: string; text: string }) => (
+            ].map((f: { icon?: any; title: string; text: string }) => (
               <div key={f.title} className={`p-4 ${glass} flex flex-col`}>
                 <div className="w-9 h-9 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center mb-3 overflow-hidden">
-                  {f.kind === "logo" ? (
-                    <img src="/assets/coins/avax.png" alt="Avalanche" className="w-6 h-6 object-contain" />
-                  ) : f.icon ? (
+                  {f.icon ? (
                     <f.icon className="w-4 h-4 text-cyan-300" />
                   ) : null}
                 </div>
@@ -559,7 +557,7 @@ export default function App() {
               <h2 className="mt-4 text-xl font-bold text-white">Vincula tu billetera para iniciar sesion</h2>
               <p className="mt-2 text-sm text-slate-400">
                 El Panel, la matriz de Riesgo, la Estrategia y los Datos se habilitan con tu sesion.
-                Cada accion queda registrada en el contrato en Avalanche.
+                Cada accion queda registrada en el contrato en Monad.
               </p>
               <button
                 onClick={() => setWalletKitOpen(true)}
@@ -619,7 +617,7 @@ export default function App() {
                   <LogOut className="w-3.5 h-3.5" /> Cerrar sesion
                 </button>
                 <div className="px-3 pt-2 text-[10px] text-slate-500 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Contratos verificados
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Contratos desplegados
                 </div>
               </div>
             </div>
@@ -1065,7 +1063,7 @@ export default function App() {
                 <span className="text-sm font-bold font-['Space_Grotesk'] text-white">RiskGuard</span>
               </div>
               <p className="text-[11px] leading-relaxed text-slate-400">
-                Agente de gestion de riesgo para rendimiento pasivo en DeFi sobre Avalanche. No custodial:
+                Agente de gestion de riesgo para rendimiento pasivo en DeFi sobre Monad. No custodial:
                 la billetera firma y el contrato decide.
               </p>
               <p className="mt-2 text-[10px] text-slate-400">
@@ -1081,20 +1079,15 @@ export default function App() {
               </ul>
             </div>
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-2">Verificacion y enlaces</div>
+              <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-2">Enlaces</div>
               <ul className="space-y-1.5 text-[11px]">
                 <li>
-                  <a className="text-cyan-300 hover:underline" href={`https://repo.sourcify.dev/contracts/full_match/43113/${deploy.riskGuard}/`} target="_blank" rel="noreferrer">
-                    Verificados en Sourcify (full match)
-                  </a>
-                </li>
-                <li>
                   <a className="text-cyan-300 hover:underline" href={`${deploy.explorer}/address/${deploy.riskGuard}`} target="_blank" rel="noreferrer">
-                    Explorador de transacciones
+                    Contrato en el explorador
                   </a>
                 </li>
                 <li>
-                  <a className="text-cyan-300 hover:underline" href="https://gitlab.com/0xronaldo/agentavaxt1" target="_blank" rel="noreferrer">
+                  <a className="text-cyan-300 hover:underline" href="https://github.com/MicaelaYael10/Metropolis" target="_blank" rel="noreferrer">
                     Codigo fuente
                   </a>
                 </li>

@@ -73,6 +73,24 @@ function main() {
       montecarlo,
     });
   }
+  // Demo de Monad Testnet: los mock vaults hermeticos no tienen dataset de mercado
+  // real, asi que se anaden como perfiles de demo con su puntaje on-chain. El
+  // dashboard filtra por la cadena conectada, de modo que cada red muestra lo suyo.
+  const monadPath = path.join(ROOT, 'data', 'dataset-monad-demo.json');
+  let monadCount = 0;
+  if (fs.existsSync(monadPath)) {
+    const demo = JSON.parse(fs.readFileSync(monadPath, 'utf8'));
+    for (const p of demo.protocols || []) {
+      const montecarlo = {};
+      for (const tf of TIMEFRAMES) {
+        const mc = simulate({ score: p.score, confidence: p.confidence, threshold: THRESHOLD, horizon: tf, seed: 42 });
+        montecarlo[tf] = { p5: mc.p5, p50: mc.p50, p95: mc.p95, breachProbability: mc.breachProbability };
+      }
+      protocols.push({ onchain: true, ...p, montecarlo });
+      monadCount += 1;
+    }
+  }
+
   protocols.sort((a, b) => a.id.localeCompare(b.id));
 
   const stats = (dataset.meta && dataset.meta.stats) || {};
@@ -82,6 +100,7 @@ function main() {
     timeframes: TIMEFRAMES,
     dataset: {
       source: 'data/dataset-avalanche-onchain.json',
+      monadDemo: 'data/dataset-monad-demo.json',
       snapshots: stats.snapshots || (dataset.snapshots || []).length,
       protocols: stats.protocols || protocols.length,
       coverageAverage: stats.coverageAverage ?? null,
@@ -92,7 +111,7 @@ function main() {
 
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(OUT, JSON.stringify(out, null, 2), 'utf8');
-  console.log(`exportados ${protocols.length} protocolos -> ${OUT}`);
+  console.log(`exportados ${protocols.length} protocolos (${monadCount} de demo Monad) -> ${OUT}`);
 }
 
 main();

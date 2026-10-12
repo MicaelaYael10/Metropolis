@@ -81,13 +81,6 @@ git clone --recurse-submodules https://github.com/MicaelaYael10/Metropolis.git
 cd Metropolis
 ```
 
-Use the branch that contains the plugin. Until it is merged into `main`, that
-is `testing`:
-
-```bash
-git checkout testing
-```
-
 If you already cloned without submodules:
 
 ```bash
@@ -119,6 +112,34 @@ Notes:
   do **not** generate this key yourself.
 - `mm wallet address` is the address the plugin will act as. It must hold MON
   for gas and mUSD for the demo (steps 5-7).
+
+### Register Monad Testnet as a custom EVM chain (required for writes)
+
+The CLI registry already knows Monad Testnet (`10143`), but the Agent Wallet
+gateway does not estimate gas for it, so `mm wallet send-transaction` and the
+plugin's transactions fail with
+`Gas fee/price estimation failed ... Invalid chainId`. Register Monad Testnet
+as a custom EVM chain so the CLI estimates gas directly against the RPC.
+
+With `mm` not running, add this entry to `~/.metamask/wallets.json`
+(`%USERPROFILE%\.metamask\wallets.json` on Windows) inside `data`, alongside
+`customSolanaChains`:
+
+```json
+"customEvmChains": [
+  {
+    "chainId": 10143,
+    "name": "Monad Testnet",
+    "rpcTarget": "https://testnet-rpc.monad.xyz",
+    "nativeCurrency": { "name": "Monad", "symbol": "MON", "decimals": 18 }
+  }
+]
+```
+
+If `customEvmChains` already exists, append the object to the array. Keep the
+file valid JSON. `mm login` and `mm reset` can clear local state and drop this
+entry; re-add it if writes start failing with `Invalid chainId` again. The CLI
+has no command to add a custom chain (`mm chains` only lists them).
 
 ---
 
@@ -276,7 +297,7 @@ fires and the rejection is recorded in `AgentLog.sol`.
 
 ```bash
 forge test -vv            # 39 Solidity tests
-pnpm run plugin:test      # builds, then 15 node:test tests
+pnpm run plugin:test      # builds, then 19 node:test tests
 pnpm run test:engine      # 52 off-chain engine tests
 pnpm run ascii            # ASCII lint
 pnpm run test:e2e         # local Anvil E2E (Windows only, see below)
@@ -294,6 +315,7 @@ cycle without network or funds. Its cleanup uses `taskkill`, so it is
 | --- | --- |
 | `RISKGUARD_GUARD_ADDRESS is not set.` | The plugin reads `process.env`; `.env` is not auto-loaded. Export the variables in the current shell (step 9). |
 | `400 Invalid chainId` / reads fail | The Agent Wallet proxy does not relay Monad `10143`. Set `RISKGUARD_RPC_URL` (step 9). |
+| Writes fail: `Gas fee/price estimation failed ... Invalid chainId` | The gateway cannot estimate gas for Monad `10143`. Add the `customEvmChains` entry to `~/.metamask/wallets.json` (step 4). `mm login`/`mm reset` clears it. |
 | `PLUGIN_UNVERIFIED_SOURCE` on install | Enable `mm config set experimentalAllowUnverifiedInstalls true`. |
 | `mm riskguard` command missing | The plugin is not installed/built. Run `pnpm run plugin:build` then `mm plugins install "file:$PWD/plugin"`. |
 | `mm` won't start | Node is too old. `mm` needs Node **22.18+**. |

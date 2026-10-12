@@ -3,6 +3,7 @@ import type { CommandIO, PluginCommandContext } from "@metamask/agent-wallet/plu
 import type { Abi, Hex } from "viem";
 import { encodeFunctionData } from "viem";
 import { MONAD_TESTNET_EXPLORER, MONAD_TESTNET_CHAIN_ID } from "./chains.js";
+import { assertChainEstimable } from "./state.js";
 
 export type TxIntentAction =
   | "call"
@@ -66,6 +67,7 @@ export async function submitContractCall(
   options: { intent?: TxIntent; waitForReceipt?: boolean } = {},
 ): Promise<TxOutcome> {
   const data = encodeCall(call);
+  assertChainEstimable(ctx, chainId);
   const executor = await ctx.walletExecutor(io, source);
   const result = await executor(
     {

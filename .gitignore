@@ -15,3 +15,8 @@ reports/
 
 # Capturas de pantalla de trabajo (no versionar)
 web/*.png
+
+# Guiones de video para la submission (documento local, no versionar)
+docs/DEMO-VIDEOS.md
+
+.vercel

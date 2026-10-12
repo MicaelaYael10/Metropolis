@@ -35,7 +35,7 @@ contract DeployMonad is Script {
         MockVault riskyVault = new MockVault(musd, "RiskGuard Risky Vault");
 
         agentLog.setWriter(address(guard));
-        registry.setUpdater(msg.sender, true);
+        registry.setUpdater(vm.addr(pk), true);
 
         // Dos venues con riesgo contrastante para el flujo permitir/bloquear.
         registry.registerProtocol(
