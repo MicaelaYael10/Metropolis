@@ -17,11 +17,13 @@ tab_width = 4
 bracket_spacing = false
 
 [rpc_endpoints]
+monad_testnet = "https://testnet-rpc.monad.xyz"
 avax_fuji = "https://api.avax-test.network/ext/bc/C/rpc"
 avax_mainnet = "https://api.avax.network/ext/bc/C/rpc"
 
 # Verificacion en el explorador. Requiere SNOWTRACE_API_KEY en el entorno (.env).
 # Obtener la clave en https://snowtrace.io/apis (Fuji: https://testnet.snowtrace.io/apis).
 [etherscan]
+monad_testnet = { key = "${MONADSCAN_API_KEY}", chain = 10143, url = "https://testnet.monadexplorer.com/api" }
 avax_fuji = { key = "${SNOWTRACE_API_KEY}", chain = 43113 }
 avax_mainnet = { key = "${SNOWTRACE_API_KEY}", chain = 43114 }

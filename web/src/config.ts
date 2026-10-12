@@ -8,10 +8,17 @@ export interface Deployment {
   name: string;
 }
 
-/** Despliegues conocidos. Fuji quedo desplegado y verificado en Sourcify. */
+/** Despliegues conocidos. El target de la demo es Monad Testnet (plugin mm). */
 export const DEPLOYMENTS: Record<number, Deployment> = {
+  10143: {
+    name: "Monad Testnet",
+    riskGuard: (import.meta.env.VITE_RISKGUARD_MONAD ?? "0x0000000000000000000000000000000000000000") as Address,
+    registry: (import.meta.env.VITE_REGISTRY_MONAD ?? "0x0000000000000000000000000000000000000000") as Address,
+    agentLog: (import.meta.env.VITE_AGENTLOG_MONAD ?? "0x0000000000000000000000000000000000000000") as Address,
+    explorer: "https://testnet.monadexplorer.com",
+  },
   43113: {
-    name: "Avalanche Fuji (testnet)",
+    name: "Avalanche Fuji (testnet, legacy)",
     riskGuard: "0xF3Cf73E668F33FB83476aD689170Eb9E0F2bf197",
     registry: "0xdefff21917B5Efbf6BAf85B597686B2DaB8dD135",
     agentLog: "0x26c59009A3b771aBCb6A14227E17763aA6b0Da36",
@@ -29,7 +36,7 @@ export const DEPLOYMENTS: Record<number, Deployment> = {
 export const SUPPORTED_CHAIN_IDS = Object.keys(DEPLOYMENTS).map(Number);
 
 export function deploymentFor(chainId?: number): Deployment {
-  return (chainId && DEPLOYMENTS[chainId]) || DEPLOYMENTS[43113];
+  return (chainId && DEPLOYMENTS[chainId]) || DEPLOYMENTS[10143];
 }
 
 /** Codigos de motivo de RiskGuard.sol. */

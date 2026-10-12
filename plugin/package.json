@@ -1,0 +1,97 @@
+{
+  "name": "mm-plugin-riskguard",
+  "version": "0.1.0",
+  "description": "RiskGuard: risk-policy-gated DeFi supply for MetaMask Agent Wallet (Monad Testnet)",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "oclif-plugin",
+    "metamask",
+    "agent-wallet",
+    "riskguard",
+    "monad"
+  ],
+  "files": [
+    "dist",
+    "oclif.manifest.json",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && oclif manifest",
+    "prepack": "npm run build",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test dist/test/*.test.js"
+  },
+  "oclif": {
+    "bin": "mm",
+    "commands": "./dist/commands",
+    "topicSeparator": " ",
+    "topics": {
+      "riskguard": {
+        "description": "RiskGuard policy-gated DeFi operations on Monad Testnet"
+      }
+    }
+  },
+  "mm": {
+    "schemaVersion": 1,
+    "minCliVersion": ">=6.2.0",
+    "capabilities": [],
+    "commands": [
+      {
+        "id": "riskguard:protocols",
+        "capabilities": ["wallet-read"],
+        "dataAccess": ["network"],
+        "targetChains": [10143]
+      },
+      {
+        "id": "riskguard:check",
+        "capabilities": ["wallet-read"],
+        "dataAccess": ["network", "accounts"],
+        "targetChains": [10143]
+      },
+      {
+        "id": "riskguard:policy",
+        "capabilities": ["wallet-read", "wallet-submit"],
+        "dataAccess": ["network", "accounts"],
+        "targetChains": [10143]
+      },
+      {
+        "id": "riskguard:supply",
+        "capabilities": ["wallet-read", "wallet-submit"],
+        "dataAccess": ["balances", "tokens", "network", "accounts"],
+        "targetChains": [10143]
+      },
+      {
+        "id": "riskguard:rebalance",
+        "capabilities": ["wallet-read", "wallet-submit"],
+        "dataAccess": ["balances", "tokens", "network", "accounts"],
+        "targetChains": [10143]
+      },
+      {
+        "id": "riskguard:dca",
+        "capabilities": ["wallet-read", "wallet-submit"],
+        "dataAccess": ["balances", "tokens", "network", "accounts"],
+        "targetChains": [10143]
+      },
+      {
+        "id": "riskguard:log",
+        "capabilities": ["wallet-read"],
+        "dataAccess": ["network", "accounts"],
+        "targetChains": [10143]
+      }
+    ]
+  },
+  "dependencies": {
+    "viem": "^2"
+  },
+  "peerDependencies": {
+    "@metamask/agent-wallet": ">=6.2.0"
+  },
+  "devDependencies": {
+    "@metamask/agent-wallet": "^7.1.0",
+    "@types/node": "^22",
+    "oclif": "^4",
+    "typescript": "^5",
+    "viem": "^2"
+  }
+}
