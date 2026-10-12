@@ -21,12 +21,19 @@ Target network: **Monad Testnet (10143)**.
 
 ## Install
 
-The plugin is beta on the Agent Wallet CLI:
+The plugin is beta on the Agent Wallet CLI. Build it first (`dist/` is not
+committed), then install from the directory:
 
 ```bash
+pnpm install
+pnpm run build
 mm config set experimentalPlugins true
-mm plugins install "file:$PWD/plugin"
+mm config set experimentalAllowUnverifiedInstalls true   # local file: plugin
+mm plugins install "file:$PWD/plugin" --accept-permissions
 ```
+
+Full end-to-end setup (tool install, Agent Wallet login, deploy, faucet,
+troubleshooting): [`../docs/SETUP.md`](../docs/SETUP.md).
 
 ## Configure
 
@@ -40,6 +47,7 @@ export RISKGUARD_AGENTLOG_ADDRESS=0x...
 export RISKGUARD_TOKEN_ADDRESS=0x...
 export RISKGUARD_VAULT_ADDRESS=0x...     # optional default vault
 export RISKGUARD_CHAIN_ID=10143          # optional, defaults to Monad Testnet
+export RISKGUARD_RPC_URL=https://testnet-rpc.monad.xyz   # read-only calls
 ```
 
 ## Commands

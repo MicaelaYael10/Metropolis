@@ -9,7 +9,34 @@ transaction. The agent cannot bypass the policy because the policy is not in the
 agent's control - it lives on-chain.
 
 The deliverable is `mm-plugin-riskguard`, an installable plugin for the Agent
-Wallet CLI (`mm`), plus its `skills/riskguard/SKILL.md`.
+Wallet CLI (`mm`), plus its [`skills/riskguard/SKILL.md`](skills/riskguard/SKILL.md).
+
+## Bounty submission
+
+**Trader-focused capabilities.** RiskGuard gives the Agent Wallet a *risk-gated
+execution* superpower: an agent can supply/lend into DeFi vaults, rebalance away
+from a risky protocol, and dollar-cost-average over several tranches, but every
+operation is capped on-chain by a user-defined policy (max risk score, max
+amount per operation, max exposure per protocol, max number of protocols). The
+agent can propose; it cannot override the limits.
+
+- **Agent instructions:** [`skills/riskguard/SKILL.md`](skills/riskguard/SKILL.md)
+- **Setup guide:** [`docs/SETUP.md`](docs/SETUP.md)
+- **Demo:** see the 5-minute script at the end of this README (video link TBD).
+
+| Requirement | How RiskGuard meets it |
+| --- | --- |
+| Working, installable plugin | `mm plugins install "file:$PWD/plugin"`; `mm` block in `plugin/package.json` (schemaVersion, capabilities, targetChains) |
+| All transactions via the Agent Wallet | `submitContractCall` in `plugin/src/lib/tx.ts` routes every write through `ctx.walletExecutor` |
+| No bypass of signing / policy / MFA | signing, host policy and MFA are applied by the wallet per transaction; the risk policy is enforced by `RiskGuard.sol`, not the agent |
+| No key or token handling | the plugin never reads or holds keys; reads use viem, writes use the executor |
+| Auditable decisions | every operation -- approved **or blocked** -- is appended to `AgentLog.sol` |
+| `skills/<name>/SKILL.md` | [`skills/riskguard/SKILL.md`](skills/riskguard/SKILL.md) |
+| README + demo | this README + the 5-minute demo script below |
+| Target chain | Monad Testnet (`10143`) |
+
+This maps to the bounty's suggested areas: **#01** risk limits / outflow caps,
+**#03** portfolio rebalancing, and **#04** strategy plugins (DCA).
 
 ## The problem
 
@@ -86,11 +113,15 @@ optional decoration for the demo, never a bypass of the on-chain gate.
 |--- script/DeployMonad.s.sol       # Monad Testnet deploy + demo seeding
 |--- engine/                        # CSBC scoring + Monte Carlo (pure JS)
 |--- web/                           # read-only dashboard (Vite + wagmi/viem)
+|--- docs/                          # SETUP.md (from-scratch guide) + BACKTESTING.md
 |--- x402/                          # ARCHIVED: paid-risk experiment (x402 SDK v2)
 `--- lib/forge-std/                 # git submodule
 ```
 
 ## Quickstart
+
+> For a complete walk-through (tool install, Agent Wallet login, key, faucet,
+> troubleshooting), see [`docs/SETUP.md`](docs/SETUP.md).
 
 ### 1. Deploy the contracts on Monad Testnet
 
@@ -107,8 +138,11 @@ reads (`RISKGUARD_GUARD_ADDRESS`, `RISKGUARD_REGISTRY_ADDRESS`,
 ### 2. Install the plugin in the Agent Wallet
 
 ```sh
+pnpm run plugin:install     # plugin dependencies
+pnpm run plugin:build       # dist/ is not committed, so build first
 mm config set experimentalPlugins true
-mm plugins install "file:$PWD/plugin"
+mm config set experimentalAllowUnverifiedInstalls true   # local file: plugin
+mm plugins install "file:$PWD/plugin" --accept-permissions
 # then export the RISKGUARD_* variables printed by DeployMonad
 ```
 
@@ -144,10 +178,26 @@ Full details: `plugin/README.md` and `skills/riskguard/SKILL.md`.
 
 | Suite | Command | Result |
 | --- | --- | --- |
-| Solidity (foundry) | `forge test` | 39/39 |
-| Plugin lib (node:test) | `pnpm --dir plugin test` | 15/15 |
+| Solidity (foundry) | `forge test -vv` | 39/39 |
+| Plugin lib (node:test) | `pnpm run plugin:test` | 15/15 |
 | Risk engine | `pnpm run test:engine` | 52/52 |
+| Local E2E (Anvil) | `pnpm run test:e2e` | Windows-only |
 | ASCII lint | `pnpm run ascii` | clean |
+
+### Running locally (contributors)
+
+```sh
+git clone --recurse-submodules https://github.com/MicaelaYael10/Metropolis.git
+cd Metropolis
+pnpm run plugin:install && pnpm run plugin:build   # dist/ is not versioned
+```
+
+- **No secrets in the repo.** `.env` and `broadcast/` are gitignored. Copy
+  `.env.example` to `.env` and fill in your own values; never share
+  `PRIVATE_KEY`.
+- The plugin reads contract addresses from the `RISKGUARD_*` environment
+  variables (see `docs/SETUP.md`, step 9). `.env` is **not** auto-loaded.
+- `test:e2e` uses `taskkill` for cleanup, so it is Windows-only as written.
 
 ## Notes and honest limits
 
