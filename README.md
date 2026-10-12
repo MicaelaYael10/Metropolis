@@ -22,7 +22,8 @@ agent can propose; it cannot override the limits.
 
 - **Agent instructions:** [`skills/riskguard/SKILL.md`](skills/riskguard/SKILL.md)
 - **Setup guide:** [`docs/SETUP.md`](docs/SETUP.md)
-- **Demo:** see the 5-minute script at the end of this README (video link TBD).
+- **Live demo:** Monad Testnet dashboard (Vercel URL TBD).
+- **Demo video:** see the 5-minute script at the end of this README (video link TBD).
 
 | Requirement | How RiskGuard meets it |
 | --- | --- |
@@ -112,7 +113,8 @@ optional decoration for the demo, never a bypass of the on-chain gate.
 |--- test/                          # Solidity tests (39)
 |--- script/DeployMonad.s.sol       # Monad Testnet deploy + demo seeding
 |--- engine/                        # CSBC scoring + Monte Carlo (pure JS)
-|--- web/                           # read-only dashboard (Vite + wagmi/viem)
+|--- data/                          # datasets (Avalanche + Monad demo profiles)
+|--- web/                           # policy dashboard (Vite + wagmi/viem)
 |--- docs/                          # SETUP.md (from-scratch guide) + BACKTESTING.md
 |--- x402/                          # ARCHIVED: paid-risk experiment (x402 SDK v2)
 `--- lib/forge-std/                 # git submodule
@@ -208,7 +210,9 @@ pnpm run plugin:install && pnpm run plugin:build   # dist/ is not versioned
   `docs/BACKTESTING.md`.
 - `x402/` is archived: the delivered flow pays nothing extra and routes
   everything through the Agent Wallet. See `x402/README.md`.
-- The web app is **read-only** in this build; operations happen in the plugin.
+- The web app (`web/`) is the user-facing dashboard: it reads the on-chain
+  state and can set the policy and commit/reject operations with a connected
+  wallet. Agent-driven operations go through the plugin.
 
 ## Demo script (5 minutes)
 

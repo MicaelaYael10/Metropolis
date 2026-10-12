@@ -1,6 +1,7 @@
 import { CommandError } from "@metamask/agent-wallet/plugin";
 import type { PluginCommandContext } from "@metamask/agent-wallet/plugin";
 import type { Hex } from "viem";
+import { MONAD_TESTNET_CHAIN_ID, MONAD_TESTNET_RPC_URL } from "./chains.js";
 
 const HEX_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 
@@ -45,4 +46,30 @@ export function activeAddress(ctx: PluginCommandContext): Hex {
     );
   }
   return match.address as Hex;
+}
+
+type CustomChainLike = { chainId?: number | string };
+
+/**
+ * Guard every write before it reaches the executor.
+ *
+ * The Agent Wallet gateway only estimates gas for relay-supported chains. Monad
+ * Testnet (10143) is in the CLI registry but not relay-supported, so the CLI
+ * needs a `customEvmChains` entry with an explicit `rpcTarget` to estimate gas
+ * locally. Without it, `walletExecutor` fails late with a cryptic
+ * `Invalid chainId` gas-estimation error. Fail early with a fix instead.
+ */
+export function assertChainEstimable(ctx: PluginCommandContext, chainId: number): void {
+  if (chainId !== MONAD_TESTNET_CHAIN_ID) return;
+
+  const state = ctx.walletStateManager.read() as { customEvmChains?: CustomChainLike[] };
+  const chains = state.customEvmChains ?? [];
+  const registered = chains.some((chain) => Number(chain.chainId) === chainId);
+  if (registered) return;
+
+  throw new CommandError(
+    "CHAIN_NOT_REGISTERED",
+    `Monad Testnet (${chainId}) is not registered as a custom chain, so Agent Wallet cannot estimate gas for this transaction.`,
+    `Add a customEvmChains entry for chainId ${chainId} with rpcTarget ${MONAD_TESTNET_RPC_URL} to ~/.metamask/wallets.json (see docs/SETUP.md, step 4).`,
+  );
 }

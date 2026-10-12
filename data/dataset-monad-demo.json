@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "source": "monad-demo",
+    "chainId": 10143,
+    "note": "Perfiles off-chain de los mock vaults hermeticos de Monad Testnet. El puntaje se fija al valor real registrado on-chain (Safe=18, Risky=82); las senales y el Monte Carlo son de demo."
+  },
+  "protocols": [
+    {
+      "id": "monad-safe-vault",
+      "name": "Safe Vault",
+      "address": "0x406043b27bEcE06ca8FED3d373b81A7a7e297Fa0",
+      "asOf": "2026-10-01",
+      "score": 18,
+      "band": "verde",
+      "confidence": 92,
+      "coverage": 80,
+      "signals": [
+        { "signal": "failedTxRate", "label": "tasa de transacciones fallidas", "source": "onchain", "weight": 14, "input": 0.01, "risk": 0.1, "points": 1.4, "available": true },
+        { "signal": "tvlDrop", "label": "caida de TVL a 30 dias", "source": "defillama", "weight": 12, "input": 0.02, "risk": 0.15, "points": 1.8, "available": true },
+        { "signal": "tvlDrawdown", "label": "maxima caida desde el pico (90 dias)", "source": "defillama", "weight": 12, "input": 0.08, "risk": 0.3, "points": 3.6, "available": true },
+        { "signal": "codeChange", "label": "antiguedad del ultimo cambio de codigo", "source": "onchain", "weight": 14, "input": 120, "risk": 0.05, "points": 0.7, "available": true },
+        { "signal": "adminActivity", "label": "actividad de la clave admin (30 dias)", "source": "onchain", "weight": 8, "input": 1, "risk": 0.1, "points": 0.8, "available": true },
+        { "signal": "depositConcentration", "label": "concentracion en el mayor depositante", "source": "onchain", "weight": 8, "input": 0.3, "risk": 0.3, "points": 2.4, "available": true },
+        { "signal": "withdrawalSpike", "label": "pico de retiros", "source": "onchain", "weight": 10, "input": 0.1, "risk": 0.2, "points": 2.0, "available": true },
+        { "signal": "auditCoverage", "label": "auditorias declaradas", "source": "defillama", "weight": 8, "input": 3, "risk": 0.0, "points": 0.0, "available": true },
+        { "signal": "incidentHistory", "label": "historial de incidentes", "source": "defillama", "weight": 8, "input": 0, "risk": 0.0, "points": 0.0, "available": true },
+        { "signal": "chainConcentration", "label": "concentracion en una sola cadena", "source": "defillama", "weight": 6, "input": 0.55, "risk": 0.55, "points": 3.3, "available": true }
+      ],
+      "reasons": [
+        "mock vault hermetico: sin historial de incidentes",
+        "colateral mUSD de demo con TVL estable"
+      ],
+      "missing": []
+    },
+    {
+      "id": "monad-risky-vault",
+      "name": "Risky Vault",
+      "address": "0xC4dd3CB9f535Ba48D1fd99424DD62c0ea0B4fEFC",
+      "asOf": "2026-10-01",
+      "score": 82,
+      "band": "rojo",
+      "confidence": 80,
+      "coverage": 70,
+      "signals": [
+        { "signal": "failedTxRate", "label": "tasa de transacciones fallidas", "source": "onchain", "weight": 14, "input": 0.18, "risk": 0.8, "points": 11.2, "available": true },
+        { "signal": "tvlDrop", "label": "caida de TVL a 30 dias", "source": "defillama", "weight": 12, "input": 0.45, "risk": 0.95, "points": 11.4, "available": true },
+        { "signal": "tvlDrawdown", "label": "maxima caida desde el pico (90 dias)", "source": "defillama", "weight": 12, "input": 0.72, "risk": 0.8, "points": 9.6, "available": true },
+        { "signal": "codeChange", "label": "antiguedad del ultimo cambio de codigo", "source": "onchain", "weight": 14, "input": 4, "risk": 0.7, "points": 9.8, "available": true },
+        { "signal": "adminActivity", "label": "actividad de la clave admin (30 dias)", "source": "onchain", "weight": 8, "input": 9, "risk": 0.75, "points": 6.0, "available": true },
+        { "signal": "depositConcentration", "label": "concentracion en el mayor depositante", "source": "onchain", "weight": 8, "input": 0.92, "risk": 0.9, "points": 7.2, "available": true },
+        { "signal": "withdrawalSpike", "label": "pico de retiros", "source": "onchain", "weight": 10, "input": 0.6, "risk": 0.9, "points": 9.0, "available": true },
+        { "signal": "auditCoverage", "label": "auditorias declaradas", "source": "defillama", "weight": 8, "input": 0, "risk": 0.5, "points": 4.0, "available": true },
+        { "signal": "incidentHistory", "label": "historial de incidentes", "source": "defillama", "weight": 8, "input": 2, "risk": 1.0, "points": 8.0, "available": true },
+        { "signal": "chainConcentration", "label": "concentracion en una sola cadena", "source": "defillama", "weight": 6, "input": 0.9, "risk": 0.85, "points": 5.1, "available": true }
+      ],
+      "reasons": [
+        "mock vault hermetico de alta volatilidad",
+        "historial de incidentes simulado",
+        "retiros y concentracion de depositantes elevados"
+      ],
+      "missing": []
+    }
+  ]
+}

@@ -12,9 +12,9 @@ export interface Deployment {
 export const DEPLOYMENTS: Record<number, Deployment> = {
   10143: {
     name: "Monad Testnet",
-    riskGuard: (import.meta.env.VITE_RISKGUARD_MONAD ?? "0x0000000000000000000000000000000000000000") as Address,
-    registry: (import.meta.env.VITE_REGISTRY_MONAD ?? "0x0000000000000000000000000000000000000000") as Address,
-    agentLog: (import.meta.env.VITE_AGENTLOG_MONAD ?? "0x0000000000000000000000000000000000000000") as Address,
+    riskGuard: (import.meta.env.VITE_RISKGUARD_MONAD ?? "0x5bAFa861aa55657b5610Ce0654A130Bf92017732") as Address,
+    registry: (import.meta.env.VITE_REGISTRY_MONAD ?? "0x0B29f202E5beBb4B4F88DD7e489759E31519a93c") as Address,
+    agentLog: (import.meta.env.VITE_AGENTLOG_MONAD ?? "0xFCdd648D12B840e3C2CF58750Ac8438fac476f9f") as Address,
     explorer: "https://testnet.monadexplorer.com",
   },
   43113: {

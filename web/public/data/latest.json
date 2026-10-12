@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-13T08:36:18.460Z",
+  "generatedAt": "2026-10-12T21:52:39.230Z",
   "threshold": 55,
   "timeframes": [
     "1h",
@@ -11,6 +11,7 @@
   ],
   "dataset": {
     "source": "data/dataset-avalanche-onchain.json",
+    "monadDemo": "data/dataset-monad-demo.json",
     "snapshots": 1474,
     "protocols": 42,
     "coverageAverage": 45.2,
@@ -3069,6 +3070,319 @@
           "p50": 29.94,
           "p95": 46.75,
           "breachProbability": 0.0125
+        }
+      }
+    },
+    {
+      "onchain": true,
+      "id": "monad-risky-vault",
+      "name": "Risky Vault",
+      "address": "0xC4dd3CB9f535Ba48D1fd99424DD62c0ea0B4fEFC",
+      "asOf": "2026-10-01",
+      "score": 82,
+      "band": "rojo",
+      "confidence": 80,
+      "coverage": 70,
+      "signals": [
+        {
+          "signal": "failedTxRate",
+          "label": "tasa de transacciones fallidas",
+          "source": "onchain",
+          "weight": 14,
+          "input": 0.18,
+          "risk": 0.8,
+          "points": 11.2,
+          "available": true
+        },
+        {
+          "signal": "tvlDrop",
+          "label": "caida de TVL a 30 dias",
+          "source": "defillama",
+          "weight": 12,
+          "input": 0.45,
+          "risk": 0.95,
+          "points": 11.4,
+          "available": true
+        },
+        {
+          "signal": "tvlDrawdown",
+          "label": "maxima caida desde el pico (90 dias)",
+          "source": "defillama",
+          "weight": 12,
+          "input": 0.72,
+          "risk": 0.8,
+          "points": 9.6,
+          "available": true
+        },
+        {
+          "signal": "codeChange",
+          "label": "antiguedad del ultimo cambio de codigo",
+          "source": "onchain",
+          "weight": 14,
+          "input": 4,
+          "risk": 0.7,
+          "points": 9.8,
+          "available": true
+        },
+        {
+          "signal": "adminActivity",
+          "label": "actividad de la clave admin (30 dias)",
+          "source": "onchain",
+          "weight": 8,
+          "input": 9,
+          "risk": 0.75,
+          "points": 6,
+          "available": true
+        },
+        {
+          "signal": "depositConcentration",
+          "label": "concentracion en el mayor depositante",
+          "source": "onchain",
+          "weight": 8,
+          "input": 0.92,
+          "risk": 0.9,
+          "points": 7.2,
+          "available": true
+        },
+        {
+          "signal": "withdrawalSpike",
+          "label": "pico de retiros",
+          "source": "onchain",
+          "weight": 10,
+          "input": 0.6,
+          "risk": 0.9,
+          "points": 9,
+          "available": true
+        },
+        {
+          "signal": "auditCoverage",
+          "label": "auditorias declaradas",
+          "source": "defillama",
+          "weight": 8,
+          "input": 0,
+          "risk": 0.5,
+          "points": 4,
+          "available": true
+        },
+        {
+          "signal": "incidentHistory",
+          "label": "historial de incidentes",
+          "source": "defillama",
+          "weight": 8,
+          "input": 2,
+          "risk": 1,
+          "points": 8,
+          "available": true
+        },
+        {
+          "signal": "chainConcentration",
+          "label": "concentracion en una sola cadena",
+          "source": "defillama",
+          "weight": 6,
+          "input": 0.9,
+          "risk": 0.85,
+          "points": 5.1,
+          "available": true
+        }
+      ],
+      "reasons": [
+        "mock vault hermetico de alta volatilidad",
+        "historial de incidentes simulado",
+        "retiros y concentracion de depositantes elevados"
+      ],
+      "missing": [],
+      "montecarlo": {
+        "1h": {
+          "p5": 81.66,
+          "p50": 82,
+          "p95": 82.38,
+          "breachProbability": 1
+        },
+        "6h": {
+          "p5": 81.09,
+          "p50": 82,
+          "p95": 82.93,
+          "breachProbability": 1
+        },
+        "24h": {
+          "p5": 80.26,
+          "p50": 82,
+          "p95": 83.71,
+          "breachProbability": 1
+        },
+        "7d": {
+          "p5": 77.13,
+          "p50": 81.98,
+          "p95": 86.88,
+          "breachProbability": 1
+        },
+        "30d": {
+          "p5": 72.31,
+          "p50": 82.06,
+          "p95": 92.33,
+          "breachProbability": 1
+        },
+        "90d": {
+          "p5": 65.3,
+          "p50": 81.93,
+          "p95": 97.54,
+          "breachProbability": 1
+        }
+      }
+    },
+    {
+      "onchain": true,
+      "id": "monad-safe-vault",
+      "name": "Safe Vault",
+      "address": "0x406043b27bEcE06ca8FED3d373b81A7a7e297Fa0",
+      "asOf": "2026-10-01",
+      "score": 18,
+      "band": "verde",
+      "confidence": 92,
+      "coverage": 80,
+      "signals": [
+        {
+          "signal": "failedTxRate",
+          "label": "tasa de transacciones fallidas",
+          "source": "onchain",
+          "weight": 14,
+          "input": 0.01,
+          "risk": 0.1,
+          "points": 1.4,
+          "available": true
+        },
+        {
+          "signal": "tvlDrop",
+          "label": "caida de TVL a 30 dias",
+          "source": "defillama",
+          "weight": 12,
+          "input": 0.02,
+          "risk": 0.15,
+          "points": 1.8,
+          "available": true
+        },
+        {
+          "signal": "tvlDrawdown",
+          "label": "maxima caida desde el pico (90 dias)",
+          "source": "defillama",
+          "weight": 12,
+          "input": 0.08,
+          "risk": 0.3,
+          "points": 3.6,
+          "available": true
+        },
+        {
+          "signal": "codeChange",
+          "label": "antiguedad del ultimo cambio de codigo",
+          "source": "onchain",
+          "weight": 14,
+          "input": 120,
+          "risk": 0.05,
+          "points": 0.7,
+          "available": true
+        },
+        {
+          "signal": "adminActivity",
+          "label": "actividad de la clave admin (30 dias)",
+          "source": "onchain",
+          "weight": 8,
+          "input": 1,
+          "risk": 0.1,
+          "points": 0.8,
+          "available": true
+        },
+        {
+          "signal": "depositConcentration",
+          "label": "concentracion en el mayor depositante",
+          "source": "onchain",
+          "weight": 8,
+          "input": 0.3,
+          "risk": 0.3,
+          "points": 2.4,
+          "available": true
+        },
+        {
+          "signal": "withdrawalSpike",
+          "label": "pico de retiros",
+          "source": "onchain",
+          "weight": 10,
+          "input": 0.1,
+          "risk": 0.2,
+          "points": 2,
+          "available": true
+        },
+        {
+          "signal": "auditCoverage",
+          "label": "auditorias declaradas",
+          "source": "defillama",
+          "weight": 8,
+          "input": 3,
+          "risk": 0,
+          "points": 0,
+          "available": true
+        },
+        {
+          "signal": "incidentHistory",
+          "label": "historial de incidentes",
+          "source": "defillama",
+          "weight": 8,
+          "input": 0,
+          "risk": 0,
+          "points": 0,
+          "available": true
+        },
+        {
+          "signal": "chainConcentration",
+          "label": "concentracion en una sola cadena",
+          "source": "defillama",
+          "weight": 6,
+          "input": 0.55,
+          "risk": 0.55,
+          "points": 3.3,
+          "available": true
+        }
+      ],
+      "reasons": [
+        "mock vault hermetico: sin historial de incidentes",
+        "colateral mUSD de demo con TVL estable"
+      ],
+      "missing": [],
+      "montecarlo": {
+        "1h": {
+          "p5": 17.69,
+          "p50": 18,
+          "p95": 18.34,
+          "breachProbability": 0
+        },
+        "6h": {
+          "p5": 17.18,
+          "p50": 18,
+          "p95": 18.83,
+          "breachProbability": 0
+        },
+        "24h": {
+          "p5": 16.43,
+          "p50": 18,
+          "p95": 19.54,
+          "breachProbability": 0
+        },
+        "7d": {
+          "p5": 13.61,
+          "p50": 17.99,
+          "p95": 22.39,
+          "breachProbability": 0
+        },
+        "30d": {
+          "p5": 9.28,
+          "p50": 18.05,
+          "p95": 27.3,
+          "breachProbability": 0
+        },
+        "90d": {
+          "p5": 3.54,
+          "p50": 17.94,
+          "p95": 33.33,
+          "breachProbability": 0
         }
       }
     },
