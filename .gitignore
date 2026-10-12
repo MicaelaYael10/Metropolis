@@ -18,3 +18,5 @@ web/*.png
 
 # Guiones de video para la submission (documento local, no versionar)
 docs/DEMO-VIDEOS.md
+
+.vercel

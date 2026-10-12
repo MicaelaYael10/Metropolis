@@ -81,13 +81,6 @@ git clone --recurse-submodules https://github.com/MicaelaYael10/Metropolis.git
 cd Metropolis
 ```
 
-Use the branch that contains the plugin. Until it is merged into `main`, that
-is `testing`:
-
-```bash
-git checkout testing
-```
-
 If you already cloned without submodules:
 
 ```bash
@@ -304,7 +297,7 @@ fires and the rejection is recorded in `AgentLog.sol`.
 
 ```bash
 forge test -vv            # 39 Solidity tests
-pnpm run plugin:test      # builds, then 15 node:test tests
+pnpm run plugin:test      # builds, then 19 node:test tests
 pnpm run test:engine      # 52 off-chain engine tests
 pnpm run ascii            # ASCII lint
 pnpm run test:e2e         # local Anvil E2E (Windows only, see below)
