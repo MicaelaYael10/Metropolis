@@ -4,7 +4,17 @@ import { injected } from "wagmi/connectors";
 
 export const wagmiConfig = createConfig({
   chains: [monadTestnet, avalancheFuji, avalanche],
-  connectors: [injected()],
+  connectors: [
+    // Explicit targets act as deterministic fallbacks: they locate the wallet's
+    // own provider instead of racing on window.ethereum, and stay available even
+    // if EIP-6963 discovery misses the wallet during store hydration.
+    injected({ target: "metaMask" }),
+    injected({ target: "coinbaseWallet" }),
+    injected({ target: { id: "io.rabby", name: "Rabby", provider: "isRabby" } }),
+    // Last-resort generic provider (any injected wallet). Kept for older wallets
+    // that do not announce via EIP-6963.
+    injected(),
+  ],
   transports: {
     [monadTestnet.id]: http(),
     [avalancheFuji.id]: http(),

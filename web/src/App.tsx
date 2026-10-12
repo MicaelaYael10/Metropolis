@@ -128,9 +128,9 @@ export default function App() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const connectors = useConnectors();
-  const { connect, isPending: isConnecting } = useConnect();
+  const { connectAsync } = useConnect();
   const { disconnect } = useDisconnect();
-  const { reconnect } = useReconnect();
+  const { reconnectAsync } = useReconnect();
   const { switchChain } = useSwitchChain();
   const deploy = deploymentFor(chainId);
 
@@ -141,6 +141,9 @@ export default function App() {
 
   const [walletKitOpen, setWalletKitOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [pendingUid, setPendingUid] = useState<string | undefined>();
+  const [connectError, setConnectError] = useState<string | null>(null);
+  const connectAttempt = useRef(0);
 
   const [form, setForm] = useState({ maxRiskScore: "55", maxProtocols: "5", maxPerProtocol: "1000", maxAmountPerOp: "500" });
   const [selected, setSelected] = useState<string>("");
@@ -298,7 +301,8 @@ export default function App() {
 
   // Restaurar sesion solo si el usuario NO la cerro explicitamente.
   useEffect(() => {
-    if (localStorage.getItem(SESSION_KEY)) reconnect();
+    if (!localStorage.getItem(SESSION_KEY)) return;
+    reconnectAsync().catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -358,8 +362,27 @@ export default function App() {
     if (!address || !evalTarget) return;
     writeContract({ address: deploy.riskGuard, abi: riskGuardAbi, functionName: "recordRejection", args: [address, evalTarget.protocol, evalTarget.amount, rationale()] });
   }
-  function connectWallet(c: Connector) {
-    connect({ connector: c });
+  async function connectWallet(c: Connector) {
+    const attempt = (connectAttempt.current += 1);
+    setConnectError(null);
+    setPendingUid(c.uid);
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      if (connectAttempt.current !== attempt) return;
+      timedOut = true;
+      setPendingUid(undefined);
+      setConnectError("La billetera no respondio: abre su extension, crea una cuenta si hace falta y reintenta.");
+    }, 30000);
+    try {
+      await connectAsync({ connector: c });
+    } catch (e) {
+      if (connectAttempt.current === attempt && !timedOut) {
+        setConnectError((e as Error).message.split("\n")[0] || "No se pudo conectar la billetera.");
+      }
+    } finally {
+      clearTimeout(timer);
+      if (connectAttempt.current === attempt) setPendingUid(undefined);
+    }
   }
 
   const wrongChain = isConnected && !SUPPORTED_CHAIN_IDS.includes(chainId);
@@ -410,10 +433,14 @@ export default function App() {
 
       <WalletKitModal
         open={walletKitOpen}
-        onClose={() => setWalletKitOpen(false)}
+        onClose={() => {
+          setWalletKitOpen(false);
+          setConnectError(null);
+        }}
         connectors={connectors}
         onConnect={connectWallet}
-        isPending={isConnecting}
+        pendingUid={pendingUid}
+        error={connectError}
         theme={theme}
       />
       <ProfileDrawer
