@@ -5,14 +5,13 @@ import { injected } from "wagmi/connectors";
 export const wagmiConfig = createConfig({
   chains: [monadTestnet, avalancheFuji, avalanche],
   connectors: [
-    // Explicit targets act as deterministic fallbacks: they locate the wallet's
-    // own provider instead of racing on window.ethereum, and stay available even
-    // if EIP-6963 discovery misses the wallet during store hydration.
+    // Deterministic MetaMask fallback: targets MetaMask's own provider instead of
+    // racing on window.ethereum, and stays available even if EIP-6963 discovery
+    // misses MetaMask during store hydration. Also helps reconnect() restore the
+    // MetaMask session. Hidden from the modal (it has no icon) but still usable.
     injected({ target: "metaMask" }),
-    injected({ target: "coinbaseWallet" }),
-    injected({ target: { id: "io.rabby", name: "Rabby", provider: "isRabby" } }),
-    // Last-resort generic provider (any injected wallet). Kept for older wallets
-    // that do not announce via EIP-6963.
+    // Last-resort generic provider (any injected wallet). Shown only when no
+    // EIP-6963 wallet with a logo is detected, so older wallets still work.
     injected(),
   ],
   transports: {

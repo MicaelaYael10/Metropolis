@@ -24,6 +24,11 @@ export const WalletKitModal: React.FC<WalletKitModalProps> = ({ open, onClose, c
   for (const c of connectors) byName.set(c.name, c);
   const list = [...byName.values()];
 
+  // Show only wallets that carry a real logo (EIP-6963 discovered). If none has
+  // one, fall back to the full list so the generic provider stays reachable.
+  const logoed = list.filter((c) => Boolean((c as unknown as { icon?: string }).icon));
+  const visible = logoed.length > 0 ? logoed : list;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
@@ -44,7 +49,7 @@ export const WalletKitModal: React.FC<WalletKitModalProps> = ({ open, onClose, c
           Billeteras detectadas en este navegador (EIP-6963). Si no aparece la tuya, instala su extension.
         </p>
 
-        {list.length === 0 ? (
+        {visible.length === 0 ? (
           <div className={`rounded-2xl border border-dashed p-5 text-sm ${isDark ? "border-white/15 text-slate-400" : "border-slate-300 text-slate-500"}`}>
             No se detecto ninguna billetera. Instala Core Wallet o MetaMask y recarga la pagina.
             <a href="https://core.app" target="_blank" rel="noreferrer" className="mt-2 flex items-center gap-1 text-cyan-400 underline">
@@ -53,7 +58,7 @@ export const WalletKitModal: React.FC<WalletKitModalProps> = ({ open, onClose, c
           </div>
         ) : (
           <div className="space-y-2">
-            {list.map((c) => {
+            {visible.map((c) => {
               const icon = (c as unknown as { icon?: string }).icon;
               const cid = (c as unknown as { id?: string }).id;
               const isThisPending = pendingUid === c.uid;
